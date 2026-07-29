@@ -1,0 +1,88 @@
+{
+ "rank_lower_bound": 7,
+ "curve": [
+  "80/7",
+  "-175/13",
+  "-1182/13",
+  "1667/13",
+  "-5585/13"
+ ],
+ "disc": "-30650344475328675056/43682250157",
+ "points": [
+  [
+   "5",
+   "0"
+  ],
+  [
+   "0",
+   "5"
+  ],
+  [
+   "11",
+   "14"
+  ],
+  [
+   "9",
+   "14"
+  ],
+  [
+   "7",
+   "-8"
+  ],
+  [
+   "-29",
+   "280"
+  ],
+  [
+   "15",
+   "130/7"
+  ]
+ ],
+ "regulator_det": 35113.368253501394,
+ "normalised_regulator": 0.2042066423786801,
+ "seed": 392,
+ "points_examined": 14,
+ "verification": {
+  "verified": true,
+  "rank_verified": 7,
+  "points_verified": [
+   [
+    "5",
+    "0"
+   ],
+   [
+    "0",
+    "5"
+   ],
+   [
+    "11",
+    "14"
+   ],
+   [
+    "9",
+    "14"
+   ],
+   [
+    "7",
+    "-8"
+   ],
+   [
+    "-29",
+    "280"
+   ],
+   [
+    "15",
+    "130/7"
+   ]
+  ],
+  "normalised_regulator_lo": 0.2042066423786801,
+  "normalised_regulator_hi": 0.20432239371532493,
+  "decay": 0.999433486782628,
+  "stable": true,
+  "relation_found": null,
+  "iters_lo": 5,
+  "iters_hi": 7,
+  "relation_bound": 1
+ },
+ "rank_claimed_by_search": 7
+}
