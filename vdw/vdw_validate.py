@@ -94,9 +94,17 @@ def one(seq, j, k, engine, revsym=True, workers=4):
                       workers=workers)
     t2 = time.time()
     ok = bool(sat_lo) and bool(good) and not sat_hi
+    # Persist the witness.  Without it, a gate that has already found a valid
+    # colouring throws it away, and establishing the *next* term then needs the
+    # same SAT instance solved a second time -- which is exactly what happened
+    # after the A217005 gate: a(19)=52 was proved, and the certificate for its
+    # lower bound had to be recomputed from scratch because this function
+    # returned only a boolean.
+    cert = (''.join('.' if c == 0 else str(c) for c in col)) if sat_lo else None
     return {'seq': seq, 'targets': targets, 'j': j, 'w': w,
             'sat_at_w_minus_1': bool(sat_lo), 'witness_verified': bool(good),
             'wildcards_used': wild, 'unsat_at_w': not sat_hi,
+            'certificate': cert, 'colouring': col if sat_lo else None,
             'sec_lo': t1 - t0, 'sec_hi': t2 - t1, 'PASS': ok}
 
 
