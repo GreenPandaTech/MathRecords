@@ -46,6 +46,24 @@ FAMILIES = {
                  'with t_0 = t_1 = ... = t_{j-1} = 2.'),
         'published': [35, 40, 53, 54, 56, 66, 67],
     },
+    'A217060': {
+        'targets': [3, 6],
+        'name': ('Van der Waerden numbers w(j+2; t_0,t_1,...,t_{j-1}, 3, 6) '
+                 'with t_0 = t_1 = ... = t_{j-1} = 2.'),
+        'published': [32, 40, 48, 56, 60, 65, 71],
+    },
+    'A217236': {
+        'targets': [4, 5],
+        'name': ('Van der Waerden numbers w(j+2; t_0,t_1,...,t_{j-1}, 4, 5) '
+                 'with t_0 = t_1 = ... = t_{j-1} = 2.'),
+        'published': [55, 71, 75, 79],
+    },
+    'A217237': {
+        'targets': [4, 6],
+        'name': ('Van der Waerden numbers w(j+2; t_0,t_1,...,t_{j-1}, 4, 6) '
+                 'with t_0 = t_1 = ... = t_{j-1} = 2.'),
+        'published': [73, 83, 93, 101],
+    },
     'A217059': {
         'targets': [3, 5],
         'name': ('Van der Waerden numbers w(j+2; t_0,t_1,...,t_{j-1}, 3, 5) '
