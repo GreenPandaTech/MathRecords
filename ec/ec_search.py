@@ -272,10 +272,25 @@ def main():
                 if best is None or k > best['rank_lower_bound']:
                     v = verify_best(r)
                     r['verification'] = v
-                    if not v['verified']:
+                    kv = v.get('rank_verified', 0)
+                    if not v['verified'] or kv == 0:
                         log(f'  rejected rank>={k} candidate (seed {r["seed"]}): '
                             f'normreg_hi={v.get("normalised_regulator_hi", 0):.3g} '
                             f'relation={v.get("relation_found")}')
+                        continue
+                    # Report only what verification actually confirmed.  The
+                    # search's own count is an optimistic low-precision figure
+                    # and the high-precision re-selection routinely keeps fewer
+                    # points; storing the larger number would put an unverified
+                    # rank in the results file.
+                    if kv < k:
+                        log(f'  seed {r["seed"]}: search claimed rank>={k}, '
+                            f'verification confirms {kv} -- recording {kv}')
+                    r['rank_claimed_by_search'] = k
+                    r['rank_lower_bound'] = kv
+                    r['points'] = v['points_verified']
+                    k = kv
+                    if best is not None and k <= best['rank_lower_bound']:
                         continue
                     best = r
                     log(f'new best: rank >= {k}  normreg={r["normalised_regulator"]:.4g} '
