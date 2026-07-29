@@ -21,6 +21,15 @@ reached with specialist machinery and enormous search.  Nothing here is going to
 approach that.  This produces genuine, checkable lower bounds for the curves it
 finds, and reports exactly what it found.
 
+Measured, so it is not re-tried: widening the scan for extra points does NOT
+raise the rank.  Going from xmax=80,qmax=6 to xmax=250,qmax=10 moved the average
+number of candidate points from 10.2 to 10.3 and left the rank distribution
+essentially unchanged.  A curve through five random points generically has rank
+exactly 5 and simply does not carry many further small points, so the lever is
+volume of curves examined -- and, to go materially higher, a *constructed*
+family in the style of Mestre's polynomial identities rather than random
+prescribed points.  That is a separate project, not a parameter change.
+
 Usage:  python ec_search.py [--workers 2] [--seconds 3600] [--target 8]
 """
 import argparse
