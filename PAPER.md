@@ -1,16 +1,18 @@
-# Two new terms for mixed van der Waerden numbers
+# Three new terms for mixed van der Waerden numbers
 
-**Results.** Two previously uncomputed values, in two different families whose
-published lists have both stood since 2012:
+**Results.** Three previously uncomputed values, in three different families
+whose published lists have all stood since 2012:
 
 | sequence | new term | value |
 |---|---|---|
 | [A217058](https://oeis.org/A217058) | `a(12) = w(14; 2^12, 3, 4)` | **57** |
 | [A217005](https://oeis.org/A217005) | `a(19) = w(21; 2^19, 3, 3)` | **52** |
+| [A217007](https://oeis.org/A217007) | `a(7) = w(9; 2^7, 4, 4)` | **68** |
 
 ```
 A217058:  18, 21, 25, 29, 33, 36, 40, 42, 45, 48, 52, 55, 57
 A217005:  9, 14, 17, 20, 21, 24, 25, 28, 31, 33, 35, 37, 39, 42, 44, 46, 48, 50, 51, 52
+A217007:  35, 40, 53, 54, 56, 66, 67, 68
 ```
 
 Each is established by a pair: an explicit colouring (checkable against the
@@ -18,7 +20,9 @@ definition by a program that never invokes a solver) and a machine refutation
 one step above it.  Sections 1-7 develop the A217058 case in full; section 8
 gives A217005, which follows the same method through a partly different code
 path -- its two colour targets are *equal*, so a second symmetry breaker is
-active that does nothing at all in the first family.
+active that does nothing at all in the first family.  Section 9 gives A217007,
+whose targets are equal *and* both 4, moving the work from 3-term to 4-term
+progressions.
 
 ---
 
@@ -341,6 +345,89 @@ consecutive wildcards.  Whether the extremal colourings of this family are
 genuinely periodic is not something a single example can settle, and no claim is
 made here -- it is recorded because it is the sort of thing worth looking at if
 anyone pursues the family further.
+
+## 9. The third term: A217007(7) = 68
+
+`A217007(j) = w(j+2; 2^j, 4, 4)` -- both colour classes must avoid **4**-term
+arithmetic progressions.  Published terms (OEIS, offset 0, keyword `hard`,
+confirmed live against the OEIS API on 2026-07-29):
+
+```
+a(0..6) = 35, 40, 53, 54, 56, 66, 67
+```
+
+**Theorem.** `a(7) = w(9; 2^7, 4, 4) = 68`.
+
+**Lower bound.** This colouring of `[1,67]` uses exactly 7 wildcards and
+contains no 4-term AP in either colour class, so `a(7) > 67`:
+
+```
+..1112112111.2221221222.1112112111.2221221222.1112112111.2221221222
+```
+
+ACCEPTED by `vdw/verify_certificate.py`, which reports
+`w(7+2; 2,2,2,2,2,2,2,4,4) >= 68`.  Found in 106.7 s, cube 4/40.
+
+**Upper bound.** `n = 68, j = 7` is unsatisfiable -- 7269.0 s, all 40 cubes
+reporting an explicit verdict.
+
+Together, `a(7) = 68`.
+
+### 9.1 What is new about this case
+
+The two preceding results both had a colour target of 3.  Here both targets are
+4, which changes the object being enumerated rather than merely its size: the
+clause set is generated from 4-term progressions in both classes, and the number
+of `t`-term APs in `[1,n]` falls as `t` grows, so the formula is *sparser* while
+the space of valid colourings is correspondingly larger.  That shows up directly
+in the shape of the answer -- the published values reach 67 at `j = 6`, where
+A217005 needs `j = 18` to reach a comparable magnitude.
+
+The targets are also equal, so as in section 8 the colour-swap breaker is live
+alongside the reversal one.  Cube-and-conquer at `k = 4` yields 40 cubes for
+`[4,4]`, against 75 for `[3,4]` and 36 for `[3,3]`.
+
+The encoding audit of section 5.1 already covered `[4,4]` among its five target
+shapes, so the CNF-equals-definition and no-orbit-lost guarantees apply to this
+family without extension.
+
+### 9.2 Validation
+
+The full-scale gate was run before the extension was attempted, and passed:
+published `a(6) = 67` was reproduced exactly -- SAT at `n = 66` with a verified
+witness using all 6 wildcards and UNSAT at `n = 67`, both at `j = 6`, 1032.1 s
+for the pair.  A separate family survey had independently refuted `n = 67` at
+`j = 6` in 225.5 s before the gate was written.
+
+### 9.3 Two honest qualifications
+
+**The lower bound is the free one.**  Section 4.3's construction applied to
+`a(6) = 67` gives `a(7) >= 68` with no solver at all, and the certificate above
+is precisely that: the gate's `a(6)` colouring with one further wildcard
+prepended.  The solver was given `n = 67, j = 7` cold and returned that same
+construction rather than a structurally different witness.  It is reported as a
+verified confirmation, not as independent evidence, and the entire computational
+weight of the theorem sits on the refutation at `n = 68`.
+
+**The refutation was established once, not three times.**  A217058's upper bound
+was re-derived through a second engine with no symmetry breaking at all
+(section 5.4); no such cross-check was run here.  What supports this one is the
+shared machinery -- an encoding audited against the definition on this very
+target shape, symmetry breaking proven to lose no orbit, the crash-honest rule
+that every cube must report explicitly (all 40 did), and a full-scale gate in
+this family at the adjacent index.  That is weaker than the first result's
+evidence and is stated as such; a `vdw2` cross-check at `n = 68, j = 7` is the
+obvious next thing to run.
+
+### 9.4 An observation, not a claim
+
+As with A217005, the witness is conspicuously periodic: the block
+`1112112111.2221221222` repeats three times, separated by single wildcards, and
+the two colour classes are exact complements of one another under `1 <-> 2`.
+Since the certificate is inherited from the `a(6)` gate rather than found
+independently, this says something about that colouring rather than about
+extremal colourings of the family in general.  Recorded, as before, only because
+it is the sort of structure worth examining if anyone takes the family further.
 
 ## References
 

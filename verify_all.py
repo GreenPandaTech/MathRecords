@@ -37,6 +37,10 @@ CLAIMS = {
                  48, 50, 51],
                 19, 52, 'probe_A217005_n51_witness.json',
                 'probe_A217005_n52.json'),
+    'A217007': ([4, 4],
+                [35, 40, 53, 54, 56, 66, 67],
+                7, 68, 'probe_A217007_a7_n67_witness.json',
+                'probe_A217007_a7_n68.json'),
 }
 
 _fail = []

@@ -3,10 +3,11 @@
 Extending tracked combinatorial records by computation, in a form where nobody
 has to take the computation's word for it.
 
-Two new terms have been established, in two different families of mixed van der
-Waerden numbers whose published lists had both stood since 2012:
-**[A217058](https://oeis.org/A217058)(12) = 57** and
-**[A217005](https://oeis.org/A217005)(19) = 52**. Each ships a certificate you
+Three new terms have been established, in three different families of mixed van
+der Waerden numbers whose published lists had all stood since 2012:
+**[A217058](https://oeis.org/A217058)(12) = 57**,
+**[A217005](https://oeis.org/A217005)(19) = 52** and
+**[A217007](https://oeis.org/A217007)(7) = 68**. Each ships a certificate you
 can check without running a solver.
 
 ---
@@ -112,20 +113,23 @@ by hours.
 
 ## Results
 
-Two new terms, in two different families, both published lists standing since
+Three new terms, in three different families, all published lists standing since
 2012:
 
 | sequence | new term | value | published before |
 |---|---|---|---|
 | A217058 | `a(12) = w(14; 2^12, 3, 4)` | **57** | 12 terms |
 | A217005 | `a(19) = w(21; 2^19, 3, 3)` | **52** | 19 terms |
+| A217007 | `a(7) = w(9; 2^7, 4, 4)` | **68** | 7 terms |
 
 ```
 A217058:  18, 21, 25, 29, 33, 36, 40, 42, 45, 48, 52, 55, 57
 A217005:  9, 14, 17, 20, 21, 24, 25, 28, 31, 33, 35, 37, 39, 42, 44, 46, 48, 50, 51, 52
+A217007:  35, 40, 53, 54, 56, 66, 67, 68
 ```
 
-Novelty for both was confirmed against the live OEIS API, not against a paper.
+Novelty for all three was confirmed against the live OEIS API, not against a
+paper.
 
 ### A217058(12) = 57
 
@@ -174,6 +178,35 @@ This family exercises a code path the first result never touched: its targets
 are *equal*, so the colour-swap symmetry breaker is active, whereas on `[3,4]`
 it emits no clauses at all. Its full-scale gate passed first — published
 `a(18)=51` reproduced exactly, SAT at `n=50` and UNSAT at `n=51`.
+
+### A217007(7) = 68
+
+Both colour classes must avoid **4**-term APs — the first family here where the
+targets are 4 rather than 3, so the AP-enumeration is over a different and much
+larger set of progressions. **Lower bound** — this colouring of `[1,67]` uses
+exactly 7 wildcards with no 4-term AP in either class:
+
+```
+..1112112111.2221221222.1112112111.2221221222.1112112111.2221221222
+```
+
+**Upper bound** — `n=68, j=7` is unsatisfiable, 7269 s, all 40 cubes reporting.
+
+Its full-scale gate passed first: published `a(6) = 67` reproduced exactly, SAT
+at `n=66` with a verified witness and UNSAT at `n=67`.
+
+**An honest note on the lower bound.** That certificate is the gate's own
+`a(6) = 67` colouring with one extra wildcard prepended. Every new term hands
+the next one a free lower bound that way — a valid colouring of `[1, a(j)−1]`
+plus one more wildcard is a valid colouring of `[1, a(j)]` with `j+1` wildcards
+— so `a(7) ≥ 68` was known before any search ran. The solver was given the
+instance cold and rediscovered that construction rather than finding a richer
+one; it is recorded here as confirmation, not as independent evidence. All the
+weight sits on the upper bound.
+
+The step from `a(6) = 67` is **+1**, the smallest possible. That is not
+anomalous either: `+1` already occurs twice in the published sequence, at
+`a(2) = 53 → a(3) = 54` and at `a(5) = 66 → a(6) = 67`.
 
 ### Evidence summary
 
