@@ -1,0 +1,16 @@
+{
+ "n": 74,
+ "j": 9,
+ "targets": [
+  3,
+  5
+ ],
+ "sat": false,
+ "sec": 3859.8812816143036,
+ "via": "all 76 cubes",
+ "workers": 4,
+ "k": 4,
+ "engine": "Cadical195",
+ "revsym": true,
+ "finished": "2026-07-29 23:36:32"
+}

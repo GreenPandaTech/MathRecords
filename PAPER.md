@@ -1,6 +1,6 @@
-# Three new terms for mixed van der Waerden numbers
+# Four new terms for mixed van der Waerden numbers
 
-**Results.** Three previously uncomputed values, in three different families
+**Results.** Four previously uncomputed values, in four different families
 whose published lists have all stood since 2012:
 
 | sequence | new term | value |
@@ -8,11 +8,13 @@ whose published lists have all stood since 2012:
 | [A217058](https://oeis.org/A217058) | `a(12) = w(14; 2^12, 3, 4)` | **57** |
 | [A217005](https://oeis.org/A217005) | `a(19) = w(21; 2^19, 3, 3)` | **52** |
 | [A217007](https://oeis.org/A217007) | `a(7) = w(9; 2^7, 4, 4)` | **68** |
+| [A217059](https://oeis.org/A217059) | `a(9) = w(11; 2^9, 3, 5)` | **74** |
 
 ```
 A217058:  18, 21, 25, 29, 33, 36, 40, 42, 45, 48, 52, 55, 57
 A217005:  9, 14, 17, 20, 21, 24, 25, 28, 31, 33, 35, 37, 39, 42, 44, 46, 48, 50, 51, 52
 A217007:  35, 40, 53, 54, 56, 66, 67, 68
+A217059:  22, 32, 43, 44, 50, 55, 61, 65, 70, 74
 ```
 
 Each is established by a pair: an explicit colouring (checkable against the
@@ -428,6 +430,82 @@ Since the certificate is inherited from the `a(6)` gate rather than found
 independently, this says something about that colouring rather than about
 extremal colourings of the family in general.  Recorded, as before, only because
 it is the sort of structure worth examining if anyone takes the family further.
+
+## 10. The fourth term: A217059(9) = 74
+
+`A217059(j) = w(j+2; 2^j, 3, 5)` -- colour 1 must avoid 3-term arithmetic
+progressions, colour 2 must avoid **5**-term ones. Published terms (OEIS, offset
+0, keyword `hard`, confirmed live against the OEIS API on 2026-07-29):
+
+```
+a(0..8) = 22, 32, 43, 44, 50, 55, 61, 65, 70
+```
+
+**Theorem.** `a(9) = w(11; 2^9, 3, 5) = 74`.
+
+**Lower bound.** This colouring of `[1,73]` uses exactly 9 wildcards, with no
+3-term AP in colour 1 and no 5-term AP in colour 2, so `a(9) > 73`:
+
+```
+21121222212222.22221122112..2.2222.2222.2122..2211221212222.2222121221122
+```
+
+ACCEPTED by `vdw/verify_certificate.py`, which reports `>= 74`. Found in 3464 s,
+cube 64 of 76.
+
+**Upper bound.** `n = 74, j = 9` is unsatisfiable -- 3859.9 s, all 76 cubes
+reporting an explicit verdict.
+
+Together, `a(9) = 74`.
+
+### 10.1 The free bound was three short, so the witness is real work
+
+Section 4.3's construction gives `a(9) >= 71` for nothing. That is where A217007's
+certificate came from, and it is worth being clear that this one is different:
+`n = 71`, `72` and `73` each turned out to be **satisfiable**, so the free bound
+was three below the truth. Explicit witnesses were found by search at each of
+those values and verified in turn, and the `n=73` colouring above is an
+independent object rather than a relabelled copy of `a(8)`'s.
+
+A satisfiable answer to a probe launched expecting a refutation is easy to discard
+as a failed run. It is not: SAT at `n` raises the floor to `n+1`, and three of them
+did most of the work of locating this term.
+
+### 10.2 Bracketing beat climbing
+
+Walking `n` upward cost 1000-3500 s per step and yielded no upper bound, so the
+remaining interval was attacked from both ends at once: one probe at `n=75`
+refuted, capping the value at 75, while the climb had raised the floor to 74. That
+left a single undecided instance. Monotonicity (section 4.2) is what licenses
+this -- any UNSAT caps the answer and any SAT raises the floor, so two probes at
+opposite ends bound it far faster than a sequential climb.
+
+`[3,5]` at `k=4` yields **76** cubes, against 75 for `[3,4]`, 40 for `[4,4]` and
+36 for `[3,3]`.
+
+### 10.3 Step size
+
+`a(9) - a(8) = 4`. The published differences are
+
+```
+10, 11, 1, 6, 5, 6, 4, 5
+```
+
+so +4 is unremarkable here -- it already occurs at `a(6) = 61 -> a(7) = 65`. Note
+the family's differences are erratic (an 11 and a 1 sit adjacent), which is
+precisely why the free lower bound was a poor predictor and why the value had to
+be cornered rather than extrapolated.
+
+### 10.4 Honest qualification
+
+The refutation was established **once**. As with A217005 and A217007, it has not
+been re-derived through the `vdw2` engine that carries no symmetry breaking, which
+is what makes A217058's upper bound the strongest of the four. What supports this
+one is the shared machinery: an encoding audited against the definition on this
+target shape, symmetry breaking proven to lose no orbit, the crash-honest rule
+that every cube must report explicitly (all 76 did), and the family's own
+validation gate. A `vdw2` cross-check at `n=74, j=9` is the outstanding work
+before this is submitted anywhere.
 
 ## References
 

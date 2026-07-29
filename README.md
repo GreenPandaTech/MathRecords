@@ -3,11 +3,12 @@
 Extending tracked combinatorial records by computation, in a form where nobody
 has to take the computation's word for it.
 
-Three new terms have been established, in three different families of mixed van
+Four new terms have been established, in four different families of mixed van
 der Waerden numbers whose published lists had all stood since 2012:
 **[A217058](https://oeis.org/A217058)(12) = 57**,
-**[A217005](https://oeis.org/A217005)(19) = 52** and
-**[A217007](https://oeis.org/A217007)(7) = 68**. Each ships a certificate you
+**[A217005](https://oeis.org/A217005)(19) = 52**,
+**[A217007](https://oeis.org/A217007)(7) = 68** and
+**[A217059](https://oeis.org/A217059)(9) = 74**. Each ships a certificate you
 can check without running a solver.
 
 ---
@@ -113,7 +114,7 @@ by hours.
 
 ## Results
 
-Three new terms, in three different families, all published lists standing since
+Four new terms, in four different families, all published lists standing since
 2012:
 
 | sequence | new term | value | published before |
@@ -121,14 +122,16 @@ Three new terms, in three different families, all published lists standing since
 | A217058 | `a(12) = w(14; 2^12, 3, 4)` | **57** | 12 terms |
 | A217005 | `a(19) = w(21; 2^19, 3, 3)` | **52** | 19 terms |
 | A217007 | `a(7) = w(9; 2^7, 4, 4)` | **68** | 7 terms |
+| A217059 | `a(9) = w(11; 2^9, 3, 5)` | **74** | 9 terms |
 
 ```
 A217058:  18, 21, 25, 29, 33, 36, 40, 42, 45, 48, 52, 55, 57
 A217005:  9, 14, 17, 20, 21, 24, 25, 28, 31, 33, 35, 37, 39, 42, 44, 46, 48, 50, 51, 52
 A217007:  35, 40, 53, 54, 56, 66, 67, 68
+A217059:  22, 32, 43, 44, 50, 55, 61, 65, 70, 74
 ```
 
-Novelty for all three was confirmed against the live OEIS API, not against a
+Novelty for all four was confirmed against the live OEIS API, not against a
 paper.
 
 ### A217058(12) = 57
@@ -207,6 +210,39 @@ weight sits on the upper bound.
 The step from `a(6) = 67` is **+1**, the smallest possible. That is not
 anomalous either: `+1` already occurs twice in the published sequence, at
 `a(2) = 53 → a(3) = 54` and at `a(5) = 66 → a(6) = 67`.
+
+### A217059(9) = 74
+
+Colour 1 must avoid 3-term APs, colour 2 must avoid **5**-term APs. **Lower
+bound** — this colouring of `[1,73]` uses exactly 9 wildcards:
+
+```
+21121222212222.22221122112..2.2222.2222.2122..2211221212222.2222121221122
+```
+
+**Upper bound** — `n=74, j=9` is unsatisfiable, 3860 s, all 76 cubes reporting.
+
+**This lower bound was earned, not inherited.** Unlike A217007, the certificate is
+not the free append-wildcard construction: the free bound from `a(8) = 70` only
+gives `a(9) >= 71`, and it turned out to be **three short**. Explicit witnesses
+were found by search at `n = 71`, `72` and `73` in turn, each verified, each
+raising the floor. The `n=73` witness came from cube 64 of 76 after 3464 s of
+searching — a genuinely independent object rather than a relabelled copy of the
+previous term's colouring.
+
+**How the value was cornered.** Climbing one `n` at a time was costing 1000-3500 s
+per step and produced no ceiling at all, so the search was bracketed instead: a
+probe at `n=75` refuted immediately-above, capping the answer at 75, while the
+climb pushed the floor to 74. That left exactly one undecided instance, `n=74`,
+and one run settled it. Satisfiability is monotone in `n`, which is what makes
+bracketing valid.
+
+The step from `a(8) = 70` is **+4**. The published differences are
+`10, 11, 1, 6, 5, 6, 4, 5`, so +4 already occurs at `a(6) = 61 -> a(7) = 65`.
+
+**Honest qualification.** Like A217005 and A217007, this refutation was
+established **once**. It has not been re-derived through the `vdw2` engine the way
+A217058's was. That cross-check is the outstanding work before submission.
 
 ### Evidence summary
 
