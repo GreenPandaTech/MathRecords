@@ -1,0 +1,18 @@
+[
+ {
+  "seq": "A217058",
+  "targets": [
+   3,
+   4
+  ],
+  "j": 9,
+  "w": 48,
+  "sat_at_w_minus_1": true,
+  "witness_verified": true,
+  "wildcards_used": 9,
+  "unsat_at_w": true,
+  "sec_lo": 283.7810468673706,
+  "sec_hi": 165.74587559700012,
+  "PASS": true
+ }
+]

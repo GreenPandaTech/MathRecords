@@ -1,0 +1,5 @@
+plan=gate05  engine=Cadical195  k=4  cases=1
+seq        targets      j    w  SAT(w-1)  ver  UNSAT(w)        sec  verdiA217058    [3, 4]       9   48  True      True True          449.5  PASS
+
+1/1 published values reproduced
+ENGINE ACCEPTED

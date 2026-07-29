@@ -1,0 +1,34 @@
+[
+ {
+  "seq": "A217058",
+  "targets": [
+   3,
+   4
+  ],
+  "j": 7,
+  "w": 42,
+  "sat_at_w_minus_1": true,
+  "witness_verified": true,
+  "wildcards_used": 7,
+  "unsat_at_w": true,
+  "sec_lo": 5.43885612487793,
+  "sec_hi": 7.200763702392578,
+  "PASS": true
+ },
+ {
+  "seq": "A217058",
+  "targets": [
+   3,
+   4
+  ],
+  "j": 10,
+  "w": 52,
+  "sat_at_w_minus_1": true,
+  "witness_verified": true,
+  "wildcards_used": 10,
+  "unsat_at_w": true,
+  "sec_lo": 184.39150261878967,
+  "sec_hi": 167.76658153533936,
+  "PASS": true
+ }
+]

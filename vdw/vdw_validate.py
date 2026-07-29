@@ -22,6 +22,26 @@ import time
 from vdw4 import check, solve
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+LOGDIR = os.path.join(os.path.dirname(HERE), 'logs')
+_LOGF = None
+
+
+def _open_log(plan):
+    global _LOGF
+    os.makedirs(LOGDIR, exist_ok=True)
+    _LOGF = open(os.path.join(LOGDIR, f'validate_{plan}.log'), 'a',
+                 encoding='utf-8')
+
+
+def _say(msg):
+    """Print and persist.  Launcher-side stdout redirection has silently
+    discarded whole runs on this box more than once."""
+    print(msg, flush=True)
+    if _LOGF:
+        _LOGF.write(msg + '\n')
+        _LOGF.flush()
+        os.fsync(_LOGF.fileno())
+
 
 FAM = {
     'A217005': ([3, 3],    [9, 14, 17, 20, 21, 24, 25, 28, 31, 33, 35, 37, 39, 42, 44, 46, 48, 50, 51]),
@@ -44,19 +64,34 @@ PLANS = {
                for j in jj],
     # depth on the family being extended: the entire published sequence
     'full34': [('A217058', j) for j in range(0, 12)],
+    # the only A217058 terms this engine has not yet reproduced: j=0..6 came
+    # from the quick sweep, j=8 and j=9 from the earlier difficulty survey, and
+    # j=11 from the full-scale gate. Finishing these two means every published
+    # term of the sequence has been re-derived before a thirteenth is added.
+    'rest34': [('A217058', 7), ('A217058', 10)],
+    # j=9 was only ever confirmed with the older vdw2 engine; running it here
+    # means every published term of A217058 has been re-derived by the engine
+    # that produced the thirteenth.
+    'j9':     [('A217058', 9)],
+    # gate for the next family to be extended: A217005 = w(j+2; 2^j, 3, 3),
+    # published through a(18)=51.  Equal targets, so the colour-swap breaker is
+    # live here as well as the reversal one.
+    'gate05': [('A217005', 18)],
 }
 
 
-def one(seq, j, k, engine, revsym=True):
+def one(seq, j, k, engine, revsym=True, workers=4):
     targets, vals = FAM[seq]
     w = vals[j]
     t0 = time.time()
-    sat_lo, col = solve(w - 1, j, targets, k=k, engine=engine, revsym=revsym)
+    sat_lo, col = solve(w - 1, j, targets, k=k, engine=engine, revsym=revsym,
+                        workers=workers)
     t1 = time.time()
     good = wild = None
     if sat_lo:
         good, wild, bad = check(col, targets, j)
-    sat_hi, _ = solve(w, j, targets, k=k, engine=engine, revsym=revsym)
+    sat_hi, _ = solve(w, j, targets, k=k, engine=engine, revsym=revsym,
+                      workers=workers)
     t2 = time.time()
     ok = bool(sat_lo) and bool(good) and not sat_hi
     return {'seq': seq, 'targets': targets, 'j': j, 'w': w,
@@ -69,26 +104,31 @@ def main():
     plan = sys.argv[1] if len(sys.argv) > 1 else 'quick'
     engine = sys.argv[2] if len(sys.argv) > 2 else 'Cadical195'
     k = int(sys.argv[3]) if len(sys.argv) > 3 else 4
+    # Explicit, because vdw4.solve defaults to 16 workers: running validation at
+    # that width oversubscribes an 8-core box, starves whatever else is running
+    # and is exactly what was orphaning workers and freezing the desktop.
+    workers = int(sys.argv[4]) if len(sys.argv) > 4 else 4
     cases = PLANS[plan]
-    print(f'plan={plan}  engine={engine}  k={k}  cases={len(cases)}', flush=True)
-    print(f'{"seq":10s} {"targets":10s} {"j":>3s} {"w":>4s}  '
-          f'{"SAT(w-1)":9s} {"ver":4s} {"UNSAT(w)":9s} {"sec":>9s}  verdict', flush=True)
+    _open_log(plan)
+    _say(f'plan={plan}  engine={engine}  k={k}  workers={workers}  cases={len(cases)}')
+    _say(f'{"seq":10s} {"targets":10s} {"j":>3s} {"w":>4s}  '
+         f'{"SAT(w-1)":9s} {"ver":4s} {"UNSAT(w)":9s} {"sec":>9s}  verdict')
     out, failures = [], []
     for seq, j in cases:
-        r = one(seq, j, k, engine)
+        r = one(seq, j, k, engine, workers=workers)
         out.append(r)
         if not r['PASS']:
             failures.append(r)
-        print(f'{r["seq"]:10s} {str(r["targets"]):10s} {r["j"]:3d} {r["w"]:4d}  '
-              f'{str(r["sat_at_w_minus_1"]):9s} {str(r["witness_verified"]):4s} '
-              f'{str(r["unsat_at_w"]):9s} {r["sec_lo"]+r["sec_hi"]:9.1f}  '
-              f'{"PASS" if r["PASS"] else "*** FAIL ***"}', flush=True)
+        _say(f'{r["seq"]:10s} {str(r["targets"]):10s} {r["j"]:3d} {r["w"]:4d}  '
+             f'{str(r["sat_at_w_minus_1"]):9s} {str(r["witness_verified"]):4s} '
+             f'{str(r["unsat_at_w"]):9s} {r["sec_lo"]+r["sec_hi"]:9.1f}  '
+             f'{"PASS" if r["PASS"] else "*** FAIL ***"}')
         json.dump(out, open(os.path.join(HERE, f'validate_{plan}.json'), 'w'), indent=1)
     print(f'\n{len(out)-len(failures)}/{len(out)} published values reproduced', flush=True)
     if failures:
-        print('FAILURES:', json.dumps(failures, indent=1), flush=True)
+        _say('FAILURES: ' + json.dumps(failures, indent=1))
         sys.exit(1)
-    print('ENGINE ACCEPTED', flush=True)
+    _say('ENGINE ACCEPTED')
 
 
 if __name__ == '__main__':
