@@ -39,7 +39,7 @@ def main():
     ap.add_argument('n_unsat', type=int, help='the claimed value a(j)')
     ap.add_argument('n_witness', type=int, help='a(j)-1, where a witness exists')
     ap.add_argument('j', type=int)
-    ap.add_argument('targets', type=int, nargs=2)
+    ap.add_argument('targets', type=int, nargs='+')
     ap.add_argument('--engine', default='Cadical300')
     ap.add_argument('--workers', type=int, default=8)
     ap.add_argument('--k', type=int, default=5)
