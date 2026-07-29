@@ -77,6 +77,12 @@ PLANS = {
     # published through a(18)=51.  Equal targets, so the colour-swap breaker is
     # live here as well as the reversal one.
     'gate05': [('A217005', 18)],
+    # Gates for the two families the survey found cheap.  These do double duty:
+    # the witness at n = w-1 with j wildcards becomes, after appending one more
+    # wildcard, exactly the lower-bound certificate for the NEXT term.  So
+    # passing the gate and obtaining the certificate are the same computation.
+    'gate07': [('A217007', 6)],
+    'gate59': [('A217059', 8)],
 }
 
 
