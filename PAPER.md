@@ -65,7 +65,7 @@ queried directly on 2026-07-28 and returned
 ```
 
 — twelve terms, offset 0, with an auto-synthesised b-file, i.e. no extension had
-been contributed. The local copy of Ahmed's paper lists the family up to
+been contributed. Ahmed's paper (cited in full at the end) lists the family up to
 `w(13; 2^11, 3, 4)` and contains no value for `w(14; 2^12, 3, 4)`.
 
 ## 3. The result
@@ -433,7 +433,19 @@ it is the sort of structure worth examining if anyone takes the family further.
 
 - T. Ahmed, *Some new van der Waerden numbers and some van der Waerden-type
   numbers*, Integers **9** (2009), A06, 65–76.
+  <http://www.integers-ejcnt.org/j6/j6.Abstract.html>
+- T. Ahmed, *Some more van der Waerden numbers*, Journal of Integer Sequences
+  **16** (2013), Article 13.4.4.
+  <https://cs.uwaterloo.ca/journals/JIS/VOL16/Ahmed/ahmed2.html>
 - T. Ahmed, *On computation of exact van der Waerden numbers*, Integers.
+
+These are cited rather than redistributed. Copies were consulted locally during
+this work and are deliberately **not** committed: they are third-party
+publications, and bundling them into a repository that may later be made public
+would be redistribution regardless of the journals being open access. The
+published values they supply are recorded in `make_submission.py` and
+`verify_all.py`, so every claim here remains checkable against the live OEIS API
+without them.
 - OEIS Foundation Inc., [A217058](https://oeis.org/A217058), The On-Line
   Encyclopedia of Integer Sequences.
 - M. Heule, O. Kullmann, S. Marijn et al., cube-and-conquer for hard

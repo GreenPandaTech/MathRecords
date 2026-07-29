@@ -1,3 +1,6 @@
 __pycache__/
 *.pyc
 logs/*.err
+vdw/ahmed_jis.pdf
+vdw/ahmed_jis.txt
+vdw/ahmed_thesis.txt
