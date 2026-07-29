@@ -108,7 +108,58 @@ CaDiCaL grows an unbounded learned-clause database, and oversubscribing this
 machine exhausted RAM and orphaned worker processes that outlived their parent
 by hours.
 
-## Status
+## Result
 
-See `SESSION_HANDOFF.md` for the live state, what is established, and what is
-still running.
+**`A217058(12) = w(14; 2^12, 3, 4) = 57`**, extending the sequence from twelve
+published terms to thirteen:
+
+```
+18, 21, 25, 29, 33, 36, 40, 42, 45, 48, 52, 55, 57
+```
+
+**Lower bound.** This colouring of `[1,56]` uses exactly 12 wildcards, has no
+3-term AP in colour 1 and no 4-term AP in colour 2, so `a(12) > 56`:
+
+```
+2.21221212.12.22211.112.2221.222.2.1..12221211212..22212
+```
+
+Check it yourself in milliseconds, trusting none of this code:
+
+```bash
+python vdw/verify_certificate.py "2.21221212.12.22211.112.2221.222.2.1..12221211212..22212" 12 3 4
+```
+
+**Upper bound.** `n=57` with `j=12` is unsatisfiable, established three times
+over along paths that cannot share a mistake:
+
+| encoding | solver | cubes | verdict | time |
+|---|---|---|---|---|
+| vdw4, reversal symmetry **on** | CaDiCaL 1.9.5 | k=4 | UNSAT | 6257 s |
+| vdw2, **no symmetry breaking at all** | CaDiCaL 1.9.5 | k=4 | UNSAT | 8037 s |
+| vdw4, reversal symmetry **off** | CaDiCaL 3.0.0 | k=5 | UNSAT | see logs |
+
+The middle row is the one that matters: it searches the full unreduced space,
+so it cannot inherit an error from the lex-leader constraint that is the only
+new mathematics in the engine. Separately, a randomised-restart portfolio spent
+8 rounds × 5 seeds × 3M conflicts hunting a witness at `n=57` and found none.
+
+The step from `a(11) = 55` is **+2**. That is not anomalous — `+2` already
+occurs in the published sequence at `a(6) = 40 → a(7) = 42`.
+
+### Evidence summary
+
+| check | result |
+|---|---|
+| CNF ≡ definition, by exhaustive enumeration | 9/9 cases, both directions |
+| symmetry breaking loses an orbit | never — 0, anywhere |
+| wildcard budget at `n = 55…58`, `j = 12` | 240 at-limit kept, 240 over-limit rejected |
+| published values replayed through the engine | 29/29 across 5 families |
+| full-scale gate: `a(11) = 55` reproduced at `j = 11` | both halves |
+| certificate under the standalone verifier | ACCEPTED |
+
+`SUBMISSION_A217058.md` is generated mechanically from the result files — the
+number cannot drift from what was computed, and the generator re-runs the
+verifier before writing. **Nothing has been submitted anywhere.**
+
+See `SESSION_HANDOFF.md` for live state.
