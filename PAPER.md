@@ -1,12 +1,24 @@
-# A new term for the mixed van der Waerden numbers w(j+2; 2^j, 3, 4)
+# Two new terms for mixed van der Waerden numbers
 
-**Result.** `w(14; 2^12, 3, 4) = 57`. This is the thirteenth term of OEIS
-sequence [A217058](https://oeis.org/A217058), whose published list has stood at
-twelve terms since 2012.
+**Results.** Two previously uncomputed values, in two different families whose
+published lists have both stood since 2012:
+
+| sequence | new term | value |
+|---|---|---|
+| [A217058](https://oeis.org/A217058) | `a(12) = w(14; 2^12, 3, 4)` | **57** |
+| [A217005](https://oeis.org/A217005) | `a(19) = w(21; 2^19, 3, 3)` | **52** |
 
 ```
-a(0..12) = 18, 21, 25, 29, 33, 36, 40, 42, 45, 48, 52, 55, 57
+A217058:  18, 21, 25, 29, 33, 36, 40, 42, 45, 48, 52, 55, 57
+A217005:  9, 14, 17, 20, 21, 24, 25, 28, 31, 33, 35, 37, 39, 42, 44, 46, 48, 50, 51, 52
 ```
+
+Each is established by a pair: an explicit colouring (checkable against the
+definition by a program that never invokes a solver) and a machine refutation
+one step above it.  Sections 1-7 develop the A217058 case in full; section 8
+gives A217005, which follows the same method through a partly different code
+path -- its two colour targets are *equal*, so a second symmetry breaker is
+active that does nothing at all in the first family.
 
 ---
 
@@ -273,6 +285,62 @@ by exhaustion, symmetry breaking proven to lose nothing, the wildcard budget
 tested at exact scale, the whole published sequence reproduced, and two
 independent refutations — one of them through an engine that imposes no symmetry
 breaking at all.
+
+## 8. The second term: A217005(19) = 52
+
+`A217005(j) = w(j+2; 2^j, 3, 3)` -- both colour classes must avoid 3-term
+arithmetic progressions.  Published terms (OEIS, offset 0, last extended by
+Tanbir Ahmed in December 2012, confirmed live against the OEIS API on
+2026-07-29):
+
+```
+a(0..18) = 9, 14, 17, 20, 21, 24, 25, 28, 31, 33, 35, 37, 39, 42, 44, 46, 48, 50, 51
+```
+
+**Theorem.** `a(19) = w(21; 2^19, 3, 3) = 52`.
+
+**Lower bound.** This colouring of `[1,51]` uses exactly 19 wildcards and
+contains no 3-term AP in either colour class, so `a(19) > 51`:
+
+```
+..11.1122.2211.1122.22.........11.1122.2211.1122.22
+```
+
+ACCEPTED by `vdw/verify_certificate.py` and independently by both engines'
+internal checkers.  Found in 1520.1 s.
+
+**Upper bound.** `n = 52, j = 19` is unsatisfiable -- 4507.0 s,
+all 36 cubes reporting an explicit verdict.
+
+Together, `a(19) = 52`.
+
+### 8.1 Why this is not merely the first computation repeated
+
+The targets here are **equal**.  That switches on the colour-swap symmetry
+breaker, which emits no clauses whatsoever on A217058's `[3,4]`, so this result
+exercises a code path the first one never touched.  The encoding audit covers
+exactly this case: on equal-target families the two breakers together are sound
+but *not* canonical -- they retain two representatives per orbit rather than one,
+because composing two independent lex-leader constraints does not canonicalise
+the group they generate.  That costs time and cannot cost correctness, and the
+audit confirms zero orbits are lost.
+
+### 8.2 Validation
+
+The full-scale gate was run before the extension was attempted: published
+`a(18) = 51` was reproduced exactly -- SAT at `n = 50` with a verified witness
+and UNSAT at `n = 51`, both at `j = 18`, in 3469.4 s.  The free lower bound of
+section 4.3 gives `a(19) >= 52` independently of any solver, so the refutation
+at `n = 52` is the only computational input to the value.
+
+### 8.3 An observation, not a claim
+
+The witness found is strikingly structured rather than random-looking: the
+segment `11.1122.2211.1122.22` appears twice, separated by a block of nine
+consecutive wildcards.  Whether the extremal colourings of this family are
+genuinely periodic is not something a single example can settle, and no claim is
+made here -- it is recorded because it is the sort of thing worth looking at if
+anyone pursues the family further.
 
 ## References
 

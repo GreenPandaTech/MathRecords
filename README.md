@@ -3,9 +3,11 @@
 Extending tracked combinatorial records by computation, in a form where nobody
 has to take the computation's word for it.
 
-The working target is **OEIS [A217058](https://oeis.org/A217058)**, a family of
-mixed van der Waerden numbers whose published list has stood at twelve terms
-since 2012.
+Two new terms have been established, in two different families of mixed van der
+Waerden numbers whose published lists had both stood since 2012:
+**[A217058](https://oeis.org/A217058)(12) = 57** and
+**[A217005](https://oeis.org/A217005)(19) = 52**. Each ships a certificate you
+can check without running a solver.
 
 ---
 
@@ -108,14 +110,24 @@ CaDiCaL grows an unbounded learned-clause database, and oversubscribing this
 machine exhausted RAM and orphaned worker processes that outlived their parent
 by hours.
 
-## Result
+## Results
 
-**`A217058(12) = w(14; 2^12, 3, 4) = 57`**, extending the sequence from twelve
-published terms to thirteen:
+Two new terms, in two different families, both published lists standing since
+2012:
+
+| sequence | new term | value | published before |
+|---|---|---|---|
+| A217058 | `a(12) = w(14; 2^12, 3, 4)` | **57** | 12 terms |
+| A217005 | `a(19) = w(21; 2^19, 3, 3)` | **52** | 19 terms |
 
 ```
-18, 21, 25, 29, 33, 36, 40, 42, 45, 48, 52, 55, 57
+A217058:  18, 21, 25, 29, 33, 36, 40, 42, 45, 48, 52, 55, 57
+A217005:  9, 14, 17, 20, 21, 24, 25, 28, 31, 33, 35, 37, 39, 42, 44, 46, 48, 50, 51, 52
 ```
+
+Novelty for both was confirmed against the live OEIS API, not against a paper.
+
+### A217058(12) = 57
 
 **Lower bound.** This colouring of `[1,56]` uses exactly 12 wildcards, has no
 3-term AP in colour 1 and no 4-term AP in colour 2, so `a(12) > 56`:
@@ -146,6 +158,22 @@ new mathematics in the engine. Separately, a randomised-restart portfolio spent
 
 The step from `a(11) = 55` is **+2**. That is not anomalous — `+2` already
 occurs in the published sequence at `a(6) = 40 → a(7) = 42`.
+
+### A217005(19) = 52
+
+Both colour classes must avoid 3-term APs. **Lower bound** — this colouring of
+`[1,51]` uses exactly 19 wildcards with no 3-term AP in either class:
+
+```
+..11.1122.2211.1122.22.........11.1122.2211.1122.22
+```
+
+**Upper bound** — `n=52, j=19` is unsatisfiable, all 36 cubes reporting.
+
+This family exercises a code path the first result never touched: its targets
+are *equal*, so the colour-swap symmetry breaker is active, whereas on `[3,4]`
+it emits no clauses at all. Its full-scale gate passed first — published
+`a(18)=51` reproduced exactly, SAT at `n=50` and UNSAT at `n=51`.
 
 ### Evidence summary
 
