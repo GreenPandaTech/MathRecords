@@ -17,10 +17,44 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
-SEQ = 'A217058'
-NAME = ('Van der Waerden numbers w(j+2; t_0,t_1,...,t_{j-1}, 3, 4) '
-        'with t_0 = t_1 = ... = t_{j-1} = 2.')
-PUBLISHED = [18, 21, 25, 29, 33, 36, 40, 42, 45, 48, 52, 55]
+# Every family this engine can extend.  Keeping the published terms here rather
+# than in the prose means the DATA line is assembled from the same list the
+# computation was gated against.
+FAMILIES = {
+    'A217058': {
+        'targets': [3, 4],
+        'name': ('Van der Waerden numbers w(j+2; t_0,t_1,...,t_{j-1}, 3, 4) '
+                 'with t_0 = t_1 = ... = t_{j-1} = 2.'),
+        'published': [18, 21, 25, 29, 33, 36, 40, 42, 45, 48, 52, 55],
+    },
+    'A217005': {
+        'targets': [3, 3],
+        'name': ('Van der Waerden numbers w(j+2; t_0,t_1,...,t_{j-1}, 3, 3) '
+                 'with t_0 = t_1 = ... = t_{j-1} = 2.'),
+        'published': [9, 14, 17, 20, 21, 24, 25, 28, 31, 33, 35, 37, 39, 42,
+                      44, 46, 48, 50, 51],
+    },
+    'A217008': {
+        'targets': [3, 3, 3],
+        'name': ('Van der Waerden numbers w(j+3; t_0,...,t_{j-1}, 3, 3, 3) '
+                 'with t_0 = ... = t_{j-1} = 2.'),
+        'published': [27, 40, 41, 42, 45, 49, 52],
+    },
+    'A217059': {
+        'targets': [3, 5],
+        'name': ('Van der Waerden numbers w(j+2; t_0,t_1,...,t_{j-1}, 3, 5) '
+                 'with t_0 = t_1 = ... = t_{j-1} = 2.'),
+        'published': [22, 32, 43, 44, 50, 55, 61, 65, 70],
+    },
+}
+
+
+def family_for(targets):
+    """Identify the sequence from the colour targets recorded in the result."""
+    for seq, f in FAMILIES.items():
+        if f['targets'] == list(targets):
+            return seq, f
+    raise SystemExit(f'no known OEIS family with targets {targets}')
 
 
 def main():
@@ -31,6 +65,11 @@ def main():
     targets = wit['targets']
     cert = wit['certificate']
     value = ref['n']
+    SEQ, fam = family_for(targets)
+    NAME, PUBLISHED = fam['name'], fam['published']
+    assert j == len(PUBLISHED), (
+        f'{SEQ} has {len(PUBLISHED)} published terms a(0..{len(PUBLISHED)-1}); '
+        f'this result is a({j}), which is not the next one')
 
     assert ref['sat'] is False, 'the refutation file does not record UNSAT'
     assert wit['sat'] is True, 'the witness file does not record SAT'
@@ -68,11 +107,14 @@ def main():
     out.append('')
     out.append('## What was computed')
     out.append('')
-    out.append(f'a({j}) = w({j}+2; 2^{j}, {", ".join(map(str, targets))}) = {value}.')
+    out.append(f'a({j}) = w({j}+{len(targets)}; 2^{j}, '
+               f'{", ".join(map(str, targets))}) = {value}.')
     out.append('')
+    conds = ' and '.join(f'no {t}-term AP in colour {i}'
+                         for i, t in enumerate(targets, start=1))
     out.append(f'Lower bound. The following colouring of [1,{value-1}] uses '
-               f'{cert.count(".")} wildcards (limit {j}), has no 3-term AP in '
-               f'colour 1 and no 4-term AP in colour 2, so a({j}) > {value-1}:')
+               f'{cert.count(".")} wildcards (limit {j}), has {conds}, '
+               f'so a({j}) > {value-1}:')
     out.append('')
     out.append(f'  {cert}')
     out.append('')
