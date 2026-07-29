@@ -51,10 +51,15 @@ def log(msg):
     print(f'[{time.strftime("%H:%M:%S")}] {msg}', flush=True)
 
 
-def solve_checked(n, j, targets, k, workers, engine, probe=20_000):
-    """(sat?, colouring).  Raises unless every cube reported a verdict."""
+def solve_checked(n, j, targets, k, workers, engine, probe=20_000, revsym=True):
+    """(sat?, colouring).  Raises unless every cube reported a verdict.
+
+    revsym=False reproduces the unreduced search space, which is what an
+    independent re-derivation wants: it cannot inherit a mistake from the
+    lex-leader constraint because it does not impose one."""
     if probe:
-        r, col = solve_direct(n, j, targets, conflicts=probe, engine=engine)
+        r, col = solve_direct(n, j, targets, conflicts=probe, engine=engine,
+                              revsym=revsym)
         if r is True:
             return True, col, 'probe'
         if r is False:
@@ -62,7 +67,7 @@ def solve_checked(n, j, targets, k, workers, engine, probe=20_000):
     cubes = make_cubes(n, j, targets, k)
     if not cubes:
         return False, None, 'no-cubes'
-    tasks = [(n, j, targets, c, True, True, engine) for c in cubes]
+    tasks = [(n, j, targets, c, True, revsym, engine) for c in cubes]
     done = 0
     # max_tasks_per_child: a worker is retired after each cube, which hands the
     # solver's memory straight back to the OS instead of letting it accumulate.
@@ -82,7 +87,7 @@ def solve_checked(n, j, targets, k, workers, engine, probe=20_000):
     return False, None, f'all {len(tasks)} cubes'
 
 
-def solve_resilient(n, j, targets, k, workers, engine, attempts=3):
+def solve_resilient(n, j, targets, k, workers, engine, attempts=3, revsym=True):
     """Retry with progressively gentler settings; a crash must cost time, not
     correctness."""
     last = None
@@ -90,7 +95,7 @@ def solve_resilient(n, j, targets, k, workers, engine, attempts=3):
         w = max(2, workers - 3 * a)
         kk = k + a                      # more, smaller cubes on each retry
         try:
-            return solve_checked(n, j, targets, kk, w, engine)
+            return solve_checked(n, j, targets, kk, w, engine, revsym=revsym)
         except Exception as e:
             last = e
             log(f'    attempt {a+1}/{attempts} failed (workers={w} k={kk}): '

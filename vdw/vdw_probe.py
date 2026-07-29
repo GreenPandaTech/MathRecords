@@ -67,13 +67,15 @@ def main():
     ap.add_argument('--k', type=int, default=4)
     ap.add_argument('--engine', default='Cadical195')
     ap.add_argument('--tag', default=None)
+    ap.add_argument('--no-revsym', action='store_true',
+                    help='search the unreduced space (for independent re-derivation)')
     a = ap.parse_args()
 
     tag = a.tag or f'n{a.n}_j{a.j}'
     open_log(tag)
     out = os.path.join(HERE, f'probe_{tag}.json')
-    log(f'probe n={a.n} j={a.j} targets={a.targets} workers={a.workers} k={a.k} '
-        f'pid={os.getpid()}')
+    log(f'probe n={a.n} j={a.j} targets={a.targets} workers={a.workers} '
+        f'k={a.k} engine={a.engine} revsym={not a.no_revsym} pid={os.getpid()}')
 
     # retry/step-down messages from the solver belong in this log too
     vdw_run.log = log
@@ -92,13 +94,15 @@ def main():
     hb = threading.Thread(target=beat, daemon=True)
     hb.start()
     try:
-        sat, col, how = solve_resilient(a.n, a.j, a.targets, a.k, a.workers, a.engine)
+        sat, col, how = solve_resilient(a.n, a.j, a.targets, a.k, a.workers,
+                                        a.engine, revsym=not a.no_revsym)
     finally:
         stop.set()
     dt = time.time() - t0
 
     rec = {'n': a.n, 'j': a.j, 'targets': a.targets, 'sat': bool(sat),
            'sec': dt, 'via': how, 'workers': a.workers, 'k': a.k,
+           'engine': a.engine, 'revsym': not a.no_revsym,
            'finished': time.strftime('%Y-%m-%d %H:%M:%S')}
 
     if sat:
