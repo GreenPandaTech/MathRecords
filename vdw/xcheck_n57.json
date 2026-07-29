@@ -1,0 +1,14 @@
+{
+ "engine": "vdw2 (no reversal symmetry)",
+ "n": 57,
+ "j": 12,
+ "targets": [
+  3,
+  4
+ ],
+ "sat": false,
+ "sec": 8036.555426597595,
+ "workers": 4,
+ "k": 4,
+ "finished": "2026-07-29 04:39:16"
+}
