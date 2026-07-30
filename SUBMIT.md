@@ -57,7 +57,7 @@ Upload `b217059.txt` (10 rows, 0 to 9).
 
 ### 3. EXTENSIONS
 ```
-a(9) from Leo Zhang, Jul 30 2026
+a(9) from Leo Y. Zhang, Jul 30 2026
 ```
 
 ### 4. COMMENT — paste verbatim
@@ -104,7 +104,7 @@ Upload `b217005.txt` (20 rows, 0 to 19).
 
 ### 3. EXTENSIONS
 ```
-a(19) from Leo Zhang, Jul 30 2026
+a(19) from Leo Y. Zhang, Jul 30 2026
 ```
 
 ### 4. COMMENT — paste verbatim
@@ -151,7 +151,7 @@ Upload `b217007.txt` (8 rows, 0 to 7).
 
 ### 3. EXTENSIONS
 ```
-a(7) from Leo Zhang, Jul 30 2026
+a(7) from Leo Y. Zhang, Jul 30 2026
 ```
 
 ### 4. COMMENT — paste verbatim
@@ -198,7 +198,7 @@ Upload `b217058.txt` (13 rows, 0 to 12).
 
 ### 3. EXTENSIONS
 ```
-a(12) from Leo Zhang, Jul 30 2026
+a(12) from Leo Y. Zhang, Jul 30 2026
 ```
 
 ### 4. COMMENT — paste verbatim
