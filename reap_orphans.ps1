@@ -27,6 +27,29 @@ foreach ($p in $all) {
     if (-not $live.ContainsKey($ppid)) { $orphans += $p }
 }
 
+# Also reap ABANDONED JOB TREES: a vdw_probe.py or cross_check.py whose own parent
+# (the orchestrator) is gone. Its workers are NOT parentless -- the job parent is
+# still alive -- so the multiprocessing-child test above misses them entirely, and
+# they keep four cores busy on a question nobody is waiting for. This was found
+# after stopping an orchestrator left its probe grinding on a superseded n for 45
+# minutes, putting the machine at 6 workers against a cap of 4.
+$jobs = Get-CimInstance Win32_Process -Filter "Name='python3.13.exe' OR Name='python.exe'" |
+    Where-Object { $_.CommandLine -match 'vdw_probe|cross_check' } |
+    Where-Object { -not (Get-Process -Id $_.ParentProcessId -ErrorAction SilentlyContinue) }
+
+if ($jobs) {
+    Write-Output ("abandoned job trees: {0} (their launcher is gone)" -f @($jobs).Count)
+    foreach ($j in $jobs) {
+        $kids = Get-CimInstance Win32_Process | Where-Object { $_.ParentProcessId -eq $j.ProcessId }
+        Write-Output ("  pid {0} with {1} worker(s)" -f $j.ProcessId, @($kids).Count)
+        if ($Kill) {
+            foreach ($k in $kids) { Stop-Process -Id $k.ProcessId -Force -ErrorAction SilentlyContinue }
+            Stop-Process -Id $j.ProcessId -Force -ErrorAction SilentlyContinue
+        }
+    }
+    if (-not $Kill) { Write-Output "run with -Kill to reap them" }
+}
+
 if ($orphans.Count -eq 0) {
     Write-Output "no orphaned workers"
     exit 0
