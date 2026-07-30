@@ -8,7 +8,15 @@ number in the write-up cannot drift from the number that was computed.
 This PREPARES a submission.  It does not send one.  Submitting is an
 outward-facing act that needs an explicit go-ahead.
 
-Usage:  python make_submission.py <probe_or_sat_json> <unsat_probe_json>
+A single OEIS edit may add SEVERAL terms at once, and for a family where we hold
+two consecutive new values that is the right way to send them: one review instead
+of two, and the second term never sits blocked behind the first being accepted.
+Pass the earlier new term(s) with --prior.
+
+Usage:
+    python make_submission.py <sat_json> <unsat_json>
+    python make_submission.py <sat_json> <unsat_json> --prior 12:57
+        ^ a(12)=57 is also new and unpublished, so the DATA line carries both.
 """
 import json
 import os
@@ -81,9 +89,20 @@ def family_for(targets):
     raise SystemExit(f'no known OEIS family with targets {targets}')
 
 
+def parse_priors(argv):
+    """--prior j:value, repeatable. Earlier new terms not yet in the OEIS."""
+    priors = {}
+    for i, a in enumerate(argv):
+        if a == '--prior' and i + 1 < len(argv):
+            j_s, v_s = argv[i + 1].split(':')
+            priors[int(j_s)] = int(v_s)
+    return priors
+
+
 def main():
     wit = json.load(open(sys.argv[1]))          # SAT at n = a(j)-1
     ref = json.load(open(sys.argv[2]))          # UNSAT at n = a(j)
+    priors = parse_priors(sys.argv)
 
     j = wit['j']
     targets = wit['targets']
@@ -91,9 +110,20 @@ def main():
     value = ref['n']
     SEQ, fam = family_for(targets)
     NAME, PUBLISHED = fam['name'], fam['published']
-    assert j == len(PUBLISHED), (
-        f'{SEQ} has {len(PUBLISHED)} published terms a(0..{len(PUBLISHED)-1}); '
-        f'this result is a({j}), which is not the next one')
+    # The result must be the next index after the published list PLUS any earlier
+    # new terms being sent in the same edit. Without the priors this would refuse
+    # a second-generation term outright, which is correct on its own and wrong
+    # when both terms go in one submission.
+    expected_j = len(PUBLISHED) + len(priors)
+    assert j == expected_j, (
+        f'{SEQ} has {len(PUBLISHED)} published terms a(0..{len(PUBLISHED)-1}) and '
+        f'{len(priors)} prior new term(s) supplied, so the next index is '
+        f'a({expected_j}); this result is a({j}). Supply the missing term(s) with '
+        f'--prior j:value, or compute them first.')
+    for k in range(len(PUBLISHED), j):
+        assert k in priors, (
+            f'a({k}) is neither published nor supplied via --prior, so the DATA '
+            f'line would have a hole in it. OEIS terms must be contiguous.')
 
     assert ref['sat'] is False, 'the refutation file does not record UNSAT'
     assert wit['sat'] is True, 'the witness file does not record SAT'
@@ -110,7 +140,7 @@ def main():
         print(r.stdout, r.stderr)
         return 1
 
-    terms = PUBLISHED + [value]
+    terms = PUBLISHED + [priors[k] for k in sorted(priors)] + [value]
     out = []
     out.append(f'# {SEQ} extension: a({j}) = {value}')
     out.append('')
@@ -127,7 +157,18 @@ def main():
     out.append('')
     out.append('## Proposed EXTENSIONS line')
     out.append('')
-    out.append(f'a({j}) from <contributor>, <date>')
+    first_new = len(PUBLISHED)
+    out.append(f'a({first_new}) from <contributor>, <date>' if first_new == j
+               else f'a({first_new})-a({j}) from <contributor>, <date>')
+    if priors:
+        out.append('')
+        out.append(f'NOTE this edit adds {len(priors) + 1} terms at once: '
+                   + ', '.join(f'a({k})={priors[k]}' for k in sorted(priors))
+                   + f', a({j})={value}. Each was established by the same pair of '
+                   'halves - an explicit checkable colouring and a machine '
+                   'refutation one step above it. Sending them together means one '
+                   'review rather than several, and no term waits on its '
+                   'predecessor being accepted first.')
     out.append('')
     out.append('## What was computed')
     out.append('')
