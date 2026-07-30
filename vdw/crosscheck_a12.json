@@ -1,0 +1,20 @@
+{
+ "claim": 57,
+ "j": 12,
+ "targets": [
+  3,
+  4
+ ],
+ "engine": "Cadical195",
+ "k": 4,
+ "vdw2_unsat_confirmed": true,
+ "vdw2_sec": 7259.841048717499,
+ "vdw4_norevsym_unsat_confirmed": true,
+ "vdw4_norevsym_sec": 8317.363105297089,
+ "vdw2_witness_found": true,
+ "vdw2_witness_verified": true,
+ "vdw2_witness_wildcards": 12,
+ "vdw2_sec_witness": 5796.661904096603,
+ "vdw2_certificate": "122212212221.1.2112.1..222.22.222..1.2112.1.122212212221",
+ "AGREES": true
+}
