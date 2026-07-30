@@ -42,6 +42,21 @@ thing only:
     evaluating the Author's technical ability — for example as a recruiter,
     hiring manager, academic admissions reviewer, collaborator, or interviewer.
 
+Additionally, and without limitation:
+
+  * ANY PERSON MAY RUN THE VERIFICATION TOOLS in this repository against any
+    result it publishes, and may reproduce, quote and republish the resulting
+    certificates and verdicts freely, for the purpose of independently checking
+    those results.
+
+    This carve-out is not a courtesy. The whole claim of this work is that a
+    stranger can confirm its mathematics without trusting any of its code, and a
+    licence permitting only "reading" would have made that claim unenforceable
+    while appearing to support it. Editors, referees, and anyone auditing a
+    submitted result are explicitly free to execute `verify_certificate.py`,
+    `verify_rank.py` and `verify_all.py`, and to publish what they find --
+    including a refutation.
+
 That is the entire grant. No other right is given, by implication, estoppel, or
 otherwise.
 
