@@ -55,6 +55,14 @@ following, and nothing beyond it:
     including a refutation. A verification right that excluded publishing a
     negative finding would be worthless.
 
+For this repository specifically, that means anyone -- an OEIS editor, a referee,
+or any reader -- may run `vdw/verify_certificate.py`, `ec/verify_rank.py` and
+`verify_all.py` against any result published here, and may reproduce and republish
+the certificates and verdicts they obtain, including a refutation. The central
+claim of this work is that its mathematics can be confirmed without trusting any
+of its code; a licence that did not permit exactly that would make the claim
+unenforceable while appearing to support it.
+
 Running the Work locally to evaluate or check it is therefore permitted. Running
 it to provide a service to somebody else is not: see 3.5.
 
