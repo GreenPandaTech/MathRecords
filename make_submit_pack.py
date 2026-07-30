@@ -32,8 +32,13 @@ CLAIMS = _ns['CLAIMS']
 
 # Sequences whose refutation was re-derived along more than one disjoint path.
 EXTRA_PATHS = {
-    'A217058': ('three separate times, including through an engine that imposes no '
-                'symmetry-breaking constraint at all and a second CDCL solver'),
+    # A217058 predates cross_check.py, so the harness holds no verdict file for it.
+    # PAPER.md section 5.4 records TWO complete refutations (vdw4 with reversal
+    # symmetry on, and vdw2 with none at all) plus a third that was stopped after
+    # 7.4 hours without finishing. So it has two, not three -- fewer than the terms
+    # that came after it. strengthen.py is running the missing third.
+    'A217058': ('twice along disjoint paths -- once by the primary engine and once by '
+                'an earlier engine that imposes no symmetry-breaking constraint at all'),
 }
 
 
@@ -174,6 +179,27 @@ def main():
             continue
         ready.append((seq, targets, published, j, value, wit, ref, xc))
 
+    # Rank by evidence, not by age. The first result is not automatically the
+    # best-evidenced one, and recommending a submission order from memory rather
+    # than from the files is how a weaker term ends up going first.
+    def strength(r):
+        seq, targets, published, j, value, wit, ref, xc = r
+        paths = 1 + (1 if (xc or {}).get('vdw2_unsat_confirmed') else 0)                   + (1 if (xc or {}).get('vdw4_norevsym_unsat_confirmed') else 0)
+        if seq in EXTRA_PATHS and not xc:
+            paths = 2
+        free = published[-1] + 1
+        earned = wit.get('n') == value - 1 and wit.get('witness_verified')             and (value - 1) > (free - 1)
+        return (paths, 1 if earned else 0)
+
+    ready.sort(key=strength, reverse=True)
+    best = ready[0][0] if ready else None
+    ranking = []
+    for r in ready:
+        paths, earned = strength(r)
+        ranking.append(f'* **{r[0]}** a({r[3]})={r[4]} — {paths} confirmed refutation '
+                       f'path(s), lower bound '
+                       f'{"found by search" if earned else "from the free construction"}')
+
     out = [
         '# OEIS submission pack',
         '',
@@ -191,11 +217,21 @@ def main():
         '',
         '## Order to submit',
         '',
-        '**A217058 first, and alone.** It is the only term whose refutation was',
-        'established three separate ways, so it is the safest place to find out what the',
-        'editors ask for. Wait for one round-trip before sending the others — you will',
-        'learn more from one reply than from any amount of preparation, and if an editor',
-        'questions the strongest result you want that on one submission, not four.',
+        'Ranked by evidence actually on disk, strongest first:',
+        '',
+    ] + ranking + [
+        '',
+        f'**Submit {best} first, and alone.** It is the best-evidenced term, so it is the',
+        'safest place to find out what the editors ask for. Wait for one round-trip',
+        'before sending the others — you will learn more from one reply than from any',
+        'amount of preparation, and if an editor questions your strongest result you',
+        'want that on one submission rather than four.',
+        '',
+        'Note that this is NOT A217058, despite it being the first result found. Its extra',
+        'refutations predate the cross-check harness, so it carries two confirmed paths',
+        'where the later terms carry three, and its third attempt was abandoned after 7.4',
+        'hours without finishing. `strengthen.py` is running that missing path now; once',
+        'it reports AGREES, re-run this generator and the ranking will update.',
         '',
         '## Never',
         '',
