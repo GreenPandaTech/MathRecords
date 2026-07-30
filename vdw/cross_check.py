@@ -40,9 +40,16 @@ def main():
     ap.add_argument('n_witness', type=int, help='a(j)-1, where a witness exists')
     ap.add_argument('j', type=int)
     ap.add_argument('targets', type=int, nargs='+')
-    ap.add_argument('--engine', default='Cadical300')
+    # Cadical195 + k=4, NOT Cadical300 + k=5. PAPER.md section 5.4 records that the
+    # Cadical300/k=5 combination was started and stopped after 7.4 HOURS without
+    # finishing, with twice the workers, and calls it "poorly matched". Those were
+    # the old defaults here, which is a trap: the disjointness that carries the
+    # scientific weight is vdw2 having NO lex-leader constraint at all, not the
+    # solver version or the cube depth. Keep the part that matters and use the
+    # settings that actually terminate.
+    ap.add_argument('--engine', default='Cadical195')
     ap.add_argument('--workers', type=int, default=8)
-    ap.add_argument('--k', type=int, default=5)
+    ap.add_argument('--k', type=int, default=4)
     a = ap.parse_args()
 
     out = {'claim': a.n_unsat, 'j': a.j, 'targets': a.targets,
