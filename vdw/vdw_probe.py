@@ -122,7 +122,7 @@ def main():
         log(f'UNSAT {dt:.1f}s  ({how})')
 
     json.dump(rec, open(out, 'w'), indent=1)
-    log(f'wrote {out}')
+    log(f'wrote probe_{tag}.json')
 
 
 if __name__ == '__main__':
