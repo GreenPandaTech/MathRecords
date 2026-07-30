@@ -66,10 +66,13 @@ def solvers_busy():
 
 
 def wait_free(label):
+    # Two workers, and tolerate one other 2-worker job. The documented discipline
+    # is "one or two jobs, --workers 2 each" -- demanding a completely idle machine
+    # was stricter than that and serialised work that could safely overlap.
     warned = False
     while True:
         n = solvers_busy()
-        if n == 0:
+        if n <= 3:
             if warned:
                 say(f'  machine free; starting {label}')
             return
@@ -104,7 +107,7 @@ def main():
         say(f'{label}: running vdw2 (no symmetry breaking) + vdw4 no-revsym + witness, '
             f'Cadical195 k=4')
         cmd = [PY, 'cross_check.py', str(n_unsat), str(n_wit), str(j)] \
-            + [str(t) for t in targets] + ['--workers', '4']
+            + [str(t) for t in targets] + ['--workers', '2']
         logp = os.path.join(LOGS, f'xcheck_{label.split()[0]}.log')
         with open(logp, 'a', encoding='utf-8') as fh:
             fh.write(f'\n===== {datetime.now():%Y-%m-%d %H:%M:%S} :: parity run\n')
