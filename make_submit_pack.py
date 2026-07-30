@@ -23,9 +23,26 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 VDW = os.path.join(HERE, 'vdw')
 
+
+def copyright_holder():
+    """Read the author's name from LICENSE, the single place it is written down.
+
+    Deliberately not hardcoded. A name in a source file travels with every copied
+    snippet, so it lives in LICENSE alone and everything else derives it. That also
+    means there is exactly one place to change if it ever needs changing.
+    """
+    import re
+    lic = open(os.path.join(HERE, 'LICENSE'), encoding='utf-8').read()
+    m = re.search(r'Copyright \(c\) \d{4} (.+?)\. All rights reserved', lic)
+    if not m:
+        raise SystemExit('LICENSE has no parseable copyright line; refusing to '
+                         'guess the attribution for a submission')
+    return m.group(1).strip()
+
 # Read the claims table rather than restating it, so this file cannot disagree
 # with the harness that verifies the repository.
 _src = open(os.path.join(HERE, 'verify_all.py'), encoding='utf-8').read()
+SUBMIT_DATE = 'Jul 30 2026'
 _ns = {}
 exec(_src[_src.index('CLAIMS = {'):_src.index('_fail = []')], _ns)
 CLAIMS = _ns['CLAIMS']
@@ -89,7 +106,7 @@ def section(seq, targets, published, j, value, wit, ref, xc):
     L.append('')
     L.append('### 3. EXTENSIONS')
     L.append('```')
-    L.append(f'a({j}) from Leo Zhang, Jul 30 2026')
+    L.append(f'a({j}) from {copyright_holder()}, {SUBMIT_DATE}')
     L.append('```')
     L.append('')
     L.append('### 4. COMMENT — paste verbatim')
