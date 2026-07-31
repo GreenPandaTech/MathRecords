@@ -165,6 +165,55 @@ def main():
             check(f'{doc}: {seq} shows the full extended sequence ending {value}',
                   full in text, '', 'extended data line missing or stale')
 
+    # SUBMIT.md is the file whose contents are actually pasted into OEIS, and
+    # until now nothing here opened it. The gate could therefore print "EVERY
+    # CLAIM IN THIS REPOSITORY IS SUPPORTED BY EVIDENCE ON DISK" while SUBMIT.md
+    # presented a term as ready whose family gate had never finished -- which is
+    # exactly what happened to A217059, through 76 consecutive passes. A gate
+    # that does not read the artifact cannot vouch for it.
+    section('SUBMIT.md agrees with the evidence')
+    submit_path = os.path.join(ROOT, 'SUBMIT.md')
+    if not os.path.exists(submit_path):
+        check('SUBMIT.md exists', False, fail_detail='run make_submit_pack.py')
+    else:
+        sys.path.insert(0, ROOT)
+        import importlib
+        import make_submit_pack
+        importlib.reload(make_submit_pack)
+
+        submit_text = open(submit_path, encoding='utf-8').read()
+        ready, blocked = [], []
+        for seq, (targets, published, j, value, wf, rf) in CLAIMS.items():
+            wit, ref = make_submit_pack.load(wf), make_submit_pack.load(rf)
+            xc, _why = make_submit_pack.crosscheck(seq, targets, j, value)
+            gate = make_submit_pack.family_gate(seq, targets, published, j)
+            if wit and ref and xc and xc.get('AGREES') and gate:
+                ready.append((seq, j, value))
+            else:
+                blocked.append((seq, j, value))
+
+        # Every section heading offering a term to paste must be a term the
+        # evidence actually supports.
+        offered = set(re.findall(r'^## (A\d+) — a\(\d+\) = \d+', submit_text, re.M))
+        unsupported = sorted(offered - {s for s, _, _ in ready})
+        check('SUBMIT.md offers no term the evidence does not support',
+              not unsupported,
+              f'{len(offered)} term(s) offered',
+              fail_detail=f'offered without support: {", ".join(unsupported)} — '
+                          f'regenerate with make_submit_pack.py')
+
+        for seq, j, value in blocked:
+            check(f'SUBMIT.md does not present blocked {seq} a({j})={value} as ready',
+                  f'## {seq} — a({j}) = {value}' not in submit_text,
+                  'listed as blocked',
+                  fail_detail='it is offered for pasting despite missing evidence')
+
+        for seq, j, value in ready:
+            check(f'SUBMIT.md carries the section for {seq} a({j})={value}',
+                  f'## {seq} — a({j}) = {value}' in submit_text,
+                  fail_detail='evidence supports it but the pack is stale — '
+                              'run make_submit_pack.py')
+
     if not fast:
         section('audits re-executed (slow)')
         rc, out = run([PY, 'encoding_audit.py'], VDW)
