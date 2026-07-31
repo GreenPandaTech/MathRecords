@@ -69,8 +69,32 @@ def load(name):
     return json.load(open(p)) if os.path.exists(p) else None
 
 
-def crosscheck(j):
-    return load(f'crosscheck_a{j}.json')
+def crosscheck(seq, targets, j, value):
+    """The cross-check verdict for THIS claim, or None with the reason why not.
+
+    Verdict files are keyed by term index, and a term index is not unique across
+    the family: j=7 is shared by A217007, A217008 and A217060, and j=4 by A217236
+    and A217237. So a file named crosscheck_a7.json may belong to a different
+    sequence entirely and would otherwise have silently vouched for this one.
+    The verdict already records the claim, j and targets it was produced for, so
+    it is checked against them rather than trusted for sitting at the right path.
+    """
+    suffix = '-'.join(str(t) for t in targets)
+    for name in (f'crosscheck_a{j}_t{suffix}.json', f'crosscheck_a{j}.json'):
+        xc = load(name)
+        if not isinstance(xc, dict):
+            continue
+        if xc.get('j') != j:
+            return None, f'{name} records j={xc.get("j")}, not a({j})'
+        if list(xc.get('targets') or []) != list(targets):
+            return None, (f'{name} belongs to the family with targets '
+                          f'{xc.get("targets")}, not {list(targets)} — it is a '
+                          f'different sequence and says nothing about {seq}')
+        if int(xc.get('claim', -1)) != int(value):
+            return None, (f'{name} cross-checked the value {xc.get("claim")}, '
+                          f'not the claimed {value}')
+        return xc, name
+    return None, f'no verdict file for a({j}) with targets {list(targets)}'
 
 
 def family_gate(seq, targets, published, j):
@@ -248,11 +272,16 @@ def main():
         if not (wit and ref):
             blocked.append((seq, j, value, 'evidence files missing'))
             continue
-        xc = crosscheck(j)
-        if not (xc and xc.get('AGREES')):
+        xc, why = crosscheck(seq, targets, j, value)
+        if not xc:
             blocked.append((seq, j, value,
-                            'no agreeing cross-check — DO NOT SUBMIT until '
-                            f'vdw/crosscheck_a{j}.json reports AGREES'))
+                            f'no cross-check verdict that belongs to this claim — '
+                            f'DO NOT SUBMIT: {why}'))
+            continue
+        if not xc.get('AGREES'):
+            blocked.append((seq, j, value,
+                            f'cross-check does not AGREE — DO NOT SUBMIT until '
+                            f'vdw/{why} reports AGREES'))
             continue
         gate = family_gate(seq, targets, published, j)
         if not gate:

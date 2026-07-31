@@ -99,7 +99,27 @@ def main():
     ok = (out['vdw2_unsat_confirmed'] and out['vdw4_norevsym_unsat_confirmed']
           and out['vdw2_witness_verified'])
     out['AGREES'] = bool(ok)
-    json.dump(out, open(os.path.join(HERE, f'crosscheck_a{a.j}.json'), 'w'), indent=1)
+    # Verdict files used to be keyed by j alone, so two families sharing a term
+    # index wrote to the same path: the second run destroyed the first family's
+    # only verdict, and until then that verdict silently vouched for the wrong
+    # claim. j=7 is shared by A217007, A217008 and A217060, and j=4 by A217236
+    # and A217237, so this was a live collision waiting to happen. This script
+    # is not told the sequence name, but (j, targets) identifies the family, so
+    # a run whose targets differ from an existing verdict is written alongside
+    # it rather than over it.
+    path = os.path.join(HERE, f'crosscheck_a{a.j}.json')
+    if os.path.exists(path):
+        try:
+            existing = json.load(open(path))
+        except (ValueError, OSError):
+            existing = None
+        if isinstance(existing, dict) and list(existing.get('targets') or []) != list(a.targets):
+            suffix = '-'.join(str(t) for t in a.targets)
+            path = os.path.join(HERE, f'crosscheck_a{a.j}_t{suffix}.json')
+            log(f'a verdict for a({a.j}) with different targets '
+                f'{existing.get("targets")} already exists; writing {os.path.basename(path)} '
+                f'rather than overwriting it')
+    json.dump(out, open(path, 'w'), indent=1)
     log('')
     log('CROSS-CHECK AGREES' if ok else '*** CROSS-CHECK DISAGREES -- DO NOT PUBLISH ***')
     return 0 if ok else 1
