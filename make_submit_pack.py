@@ -191,10 +191,19 @@ def section(seq, targets, published, j, value, wit, ref, xc, gate):
     L.append('')
 
     if xc and xc.get('AGREES'):
+        # Was "carries no symmetry-breaking constraint", which is false. vdw2
+        # DOES break the colour-permutation symmetry -- see vdw2._symbreak, which
+        # fires whenever two colours share a target value, i.e. for exactly the
+        # equal-target families A217005 (3,3) and A217007 (4,4). What vdw2 lacks
+        # is the REVERSAL lex-leader constraint (vdw4._symbreak_reversal), and
+        # that is the one piece of new mathematics the cross-check exists to be
+        # independent of. The argument was always sound; the sentence overstated
+        # it, and this is a line the operator reads to decide whether to submit.
         L.append('Cross-check: **AGREES** — the refutation was re-derived through '
-                 '`vdw2`, which carries no symmetry-breaking constraint, so it cannot '
+                 '`vdw2`, which has no reversal-symmetry constraint, so it cannot '
                  'inherit an error from the one piece of new mathematics in the main '
-                 'engine.')
+                 'engine. (Both engines break the standard colour-permutation '
+                 'symmetry, which is textbook and independent of that work.)')
     L.append('')
 
     L.append('### 1. DATA')

@@ -45,7 +45,7 @@ times. `A217058` was submitted on Jul 30 2026 and is under review.
 
 Page: https://oeis.org/A217058  ·  click **edit**
 
-Cross-check: **AGREES** — the refutation was re-derived through `vdw2`, which carries no symmetry-breaking constraint, so it cannot inherit an error from the one piece of new mathematics in the main engine.
+Cross-check: **AGREES** — the refutation was re-derived through `vdw2`, which has no reversal-symmetry constraint, so it cannot inherit an error from the one piece of new mathematics in the main engine. (Both engines break the standard colour-permutation symmetry, which is textbook and independent of that work.)
 
 ### 1. DATA
 ```
@@ -57,12 +57,12 @@ Cross-check: **AGREES** — the refutation was re-derived through `vdw2`, which 
 
 ### 3. EXTENSIONS — ADD this line; never alter the lines already there
 ```
-a(12) from _Leo Y. Zhang_, Jul 31 2026
+a(12) from _Leo Y. Zhang_, Aug 01 2026
 ```
 
 ### 4. COMMENT — paste verbatim, including the wrapper lines
 ```
-From _Leo Y. Zhang_, Jul 31 2026: (Start)
+From _Leo Y. Zhang_, Aug 01 2026: (Start)
 a(12) = 57 was computed with a SAT solver.
 
 Written out, a(12) is the least n such that every partition of [1,n] into 12+2 classes contains two elements in one of the first 12 classes, a 3-term arithmetic progression in the next, or a 4-term one in the last.
@@ -86,7 +86,7 @@ python vdw/verify_certificate.py "2.21221212.12.22211.112.2221.222.2.1..12221211
 
 Page: https://oeis.org/A217236  ·  click **edit**
 
-Cross-check: **AGREES** — the refutation was re-derived through `vdw2`, which carries no symmetry-breaking constraint, so it cannot inherit an error from the one piece of new mathematics in the main engine.
+Cross-check: **AGREES** — the refutation was re-derived through `vdw2`, which has no reversal-symmetry constraint, so it cannot inherit an error from the one piece of new mathematics in the main engine. (Both engines break the standard colour-permutation symmetry, which is textbook and independent of that work.)
 
 ### 1. DATA
 ```
@@ -98,12 +98,12 @@ Cross-check: **AGREES** — the refutation was re-derived through `vdw2`, which 
 
 ### 3. EXTENSIONS — ADD this line; never alter the lines already there
 ```
-a(4) from _Leo Y. Zhang_, Jul 31 2026
+a(4) from _Leo Y. Zhang_, Aug 01 2026
 ```
 
 ### 4. COMMENT — paste verbatim, including the wrapper lines
 ```
-From _Leo Y. Zhang_, Jul 31 2026: (Start)
+From _Leo Y. Zhang_, Aug 01 2026: (Start)
 a(4) = 84 was computed with a SAT solver.
 
 Written out, a(4) is the least n such that every partition of [1,n] into 4+2 classes contains two elements in one of the first 4 classes, a 4-term arithmetic progression in the next, or a 5-term one in the last.
@@ -127,7 +127,7 @@ python vdw/verify_certificate.py "122121221221212221.212121221121222211121.22121
 
 Page: https://oeis.org/A217005  ·  click **edit**
 
-Cross-check: **AGREES** — the refutation was re-derived through `vdw2`, which carries no symmetry-breaking constraint, so it cannot inherit an error from the one piece of new mathematics in the main engine.
+Cross-check: **AGREES** — the refutation was re-derived through `vdw2`, which has no reversal-symmetry constraint, so it cannot inherit an error from the one piece of new mathematics in the main engine. (Both engines break the standard colour-permutation symmetry, which is textbook and independent of that work.)
 
 ### 1. DATA
 ```
@@ -139,12 +139,12 @@ Cross-check: **AGREES** — the refutation was re-derived through `vdw2`, which 
 
 ### 3. EXTENSIONS — ADD this line; never alter the lines already there
 ```
-a(19) from _Leo Y. Zhang_, Jul 31 2026
+a(19) from _Leo Y. Zhang_, Aug 01 2026
 ```
 
 ### 4. COMMENT — paste verbatim, including the wrapper lines
 ```
-From _Leo Y. Zhang_, Jul 31 2026: (Start)
+From _Leo Y. Zhang_, Aug 01 2026: (Start)
 a(19) = 52 was computed with a SAT solver.
 
 Written out, a(19) is the least n such that every partition of [1,n] into 19+2 classes contains two elements in one of the first 19 classes, or a 3-term arithmetic progression in either of the last two.
@@ -168,7 +168,7 @@ python vdw/verify_certificate.py "..11.1122.2211.1122.22.........11.1122.2211.11
 
 Page: https://oeis.org/A217007  ·  click **edit**
 
-Cross-check: **AGREES** — the refutation was re-derived through `vdw2`, which carries no symmetry-breaking constraint, so it cannot inherit an error from the one piece of new mathematics in the main engine.
+Cross-check: **AGREES** — the refutation was re-derived through `vdw2`, which has no reversal-symmetry constraint, so it cannot inherit an error from the one piece of new mathematics in the main engine. (Both engines break the standard colour-permutation symmetry, which is textbook and independent of that work.)
 
 ### 1. DATA
 ```
@@ -180,12 +180,12 @@ Cross-check: **AGREES** — the refutation was re-derived through `vdw2`, which 
 
 ### 3. EXTENSIONS — ADD this line; never alter the lines already there
 ```
-a(7) from _Leo Y. Zhang_, Jul 31 2026
+a(7) from _Leo Y. Zhang_, Aug 01 2026
 ```
 
 ### 4. COMMENT — paste verbatim, including the wrapper lines
 ```
-From _Leo Y. Zhang_, Jul 31 2026: (Start)
+From _Leo Y. Zhang_, Aug 01 2026: (Start)
 a(7) = 68 was computed with a SAT solver.
 
 Written out, a(7) is the least n such that every partition of [1,n] into 7+2 classes contains two elements in one of the first 7 classes, or a 4-term arithmetic progression in either of the last two.
