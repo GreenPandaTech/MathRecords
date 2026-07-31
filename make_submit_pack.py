@@ -73,6 +73,60 @@ def crosscheck(j):
     return load(f'crosscheck_a{j}.json')
 
 
+def family_gate(seq, targets, published, j):
+    """Evidence that the family gate actually reproduced the published a(j-1).
+
+    The Never list below forbids claiming a term whose family gate did not
+    reproduce the published value, but the sentence asserting it had been
+    unconditional prose: it printed for every term while every other quantity on
+    the same line was read from JSON. A217059 is exactly the case that catches --
+    logs/validate_gate59.log contains its two header lines and no result row, and
+    no vdw/validate_gate59.json was ever written, so the gate was started and
+    killed without a verdict. The claim is now looked up like everything else.
+
+    Two shapes count as a gate, and both assert the same thing -- SAT at w-1 and
+    UNSAT at w for the previous term's parameters:
+      validate_*.json   a list of records carrying seq / j / w / PASS
+      probe_*gate*.json a SAT record at n = w-1 plus an UNSAT record at n = w
+
+    Returns a dict describing the evidence, or None when there is none.
+    """
+    w = published[-1]
+    gj = j - 1
+    names = sorted(os.listdir(VDW)) if os.path.isdir(VDW) else []
+
+    for name in names:
+        if not (name.startswith('validate_') and name.endswith('.json')):
+            continue
+        recs = load(name)
+        for rec in recs if isinstance(recs, list) else [recs]:
+            if not isinstance(rec, dict):
+                continue
+            if (rec.get('seq') == seq and rec.get('j') == gj and rec.get('w') == w
+                    and rec.get('PASS') and rec.get('sat_at_w_minus_1')
+                    and rec.get('unsat_at_w')):
+                return {'w': w, 'gj': gj, 'source': name}
+
+    # The probe pair carries no seq, so it is identified by (j, targets) -- which
+    # is unique across CLAIMS -- and pinned to the exact n on each side.
+    sat = unsat = None
+    for name in names:
+        if not (name.startswith('probe_') and 'gate' in name and name.endswith('.json')):
+            continue
+        rec = load(name)
+        if not isinstance(rec, dict):
+            continue
+        if rec.get('j') != gj or list(rec.get('targets') or []) != list(targets):
+            continue
+        if rec.get('sat') is True and rec.get('n') == w - 1 and rec.get('witness_verified'):
+            sat = name
+        elif rec.get('sat') is False and rec.get('n') == w:
+            unsat = name
+    if sat and unsat:
+        return {'w': w, 'gj': gj, 'source': f'{sat} + {unsat}'}
+    return None
+
+
 def plain_definition(targets):
     """What a(j) counts, in words, for a reader who has not seen the setup.
 
@@ -99,7 +153,7 @@ def plain_avoids(j, targets):
             f'class marked 2')
 
 
-def section(seq, targets, published, j, value, wit, ref, xc):
+def section(seq, targets, published, j, value, wit, ref, xc, gate):
     cert = wit['certificate']
     data = ','.join(str(t) for t in published + [value])
     free_bound = published[-1] + 1
@@ -165,11 +219,19 @@ def section(seq, targets, published, j, value, wit, ref, xc):
     L.append('(End)')
     L.append('```')
     L.append('')
+    # Read from the gate evidence, not asserted. A term with no gate never reaches
+    # this function, so the else branch is a belt-and-braces guard rather than an
+    # expected path -- but it must never silently print the reassuring sentence.
+    if gate:
+        gate_sentence = (f'The family gate reproduced the published a({gate["gj"]}) = '
+                         f'{gate["w"]} before this term was claimed ({gate["source"]}).')
+    else:
+        gate_sentence = ('NO family gate evidence is on disk for the published '
+                         f'a({j-1}); this term must not be submitted.')
     L.append(f'*Evidence behind the two sentences above, kept out of the comment because '
              f'the editors asked for brevity: refutation {ref["sec"]:.0f} s, {ref["via"]}; '
              f'witness {wit["sec"]:.0f} s; free construction alone would give only '
-             f'a({j}) >= {free_bound}. The family gate reproduced the published '
-             f'a({j-1}) before this term was claimed.*')
+             f'a({j}) >= {free_bound}. {gate_sentence}*')
     L.append('')
     L.append('### 5. Verify the lower bound yourself')
     L.append('```')
@@ -192,13 +254,22 @@ def main():
                             'no agreeing cross-check — DO NOT SUBMIT until '
                             f'vdw/crosscheck_a{j}.json reports AGREES'))
             continue
-        ready.append((seq, targets, published, j, value, wit, ref, xc))
+        gate = family_gate(seq, targets, published, j)
+        if not gate:
+            blocked.append((seq, j, value,
+                            f'no family gate evidence reproducing the published '
+                            f'a({j-1}) = {published[-1]} — DO NOT SUBMIT. The Never '
+                            f'list forbids claiming a term whose family gate did not '
+                            f'reproduce the published value; run the gate and let it '
+                            f'finish, then regenerate this pack'))
+            continue
+        ready.append((seq, targets, published, j, value, wit, ref, xc, gate))
 
     # Rank by evidence, not by age. The first result is not automatically the
     # best-evidenced one, and recommending a submission order from memory rather
     # than from the files is how a weaker term ends up going first.
     def strength(r):
-        seq, targets, published, j, value, wit, ref, xc = r
+        seq, targets, published, j, value, wit, ref, xc, gate = r
         paths = 1 + (1 if (xc or {}).get('vdw2_unsat_confirmed') else 0)                   + (1 if (xc or {}).get('vdw4_norevsym_unsat_confirmed') else 0)
         free = published[-1] + 1
         earned = wit.get('n') == value - 1 and wit.get('witness_verified')             and (value - 1) > (free - 1)

@@ -3,7 +3,7 @@
 Generated from the evidence files, not typed. Every certificate, timing and
 DATA line below was read out of the JSON the computation wrote.
 
-**5 term(s) ready to submit.**
+**4 term(s) ready to submit.**
 
 ## Do this first, every time
 
@@ -17,7 +17,6 @@ Registration is already done, so there is no waiting period any more.
 Ranked by evidence actually on disk, strongest first:
 
 * **A217058** a(12)=57 — 3 confirmed refutation path(s), lower bound found by search
-* **A217059** a(9)=74 — 3 confirmed refutation path(s), lower bound found by search
 * **A217236** a(4)=84 — 3 confirmed refutation path(s), lower bound found by search
 * **A217005** a(19)=52 — 3 confirmed refutation path(s), lower bound from the free construction
 * **A217007** a(7)=68 — 3 confirmed refutation path(s), lower bound from the free construction
@@ -76,52 +75,11 @@ That no such partition of [1,57] exists was confirmed by a second, independent e
 (End)
 ```
 
-*Evidence behind the two sentences above, kept out of the comment because the editors asked for brevity: refutation 6257 s, all 75 cubes; witness 3926 s; free construction alone would give only a(12) >= 56. The family gate reproduced the published a(11) before this term was claimed.*
+*Evidence behind the two sentences above, kept out of the comment because the editors asked for brevity: refutation 6257 s, all 75 cubes; witness 3926 s; free construction alone would give only a(12) >= 56. The family gate reproduced the published a(11) = 55 before this term was claimed (probe_gate_a11_sat.json + probe_gate_a11_unsat.json).*
 
 ### 5. Verify the lower bound yourself
 ```
 python vdw/verify_certificate.py "2.21221212.12.22211.112.2221.222.2.1..12221211212..22212" 12 3 4
-```
-
-## A217059 — a(9) = 74
-
-Page: https://oeis.org/A217059  ·  click **edit**
-
-Cross-check: **AGREES** — the refutation was re-derived through `vdw2`, which carries no symmetry-breaking constraint, so it cannot inherit an error from the one piece of new mathematics in the main engine.
-
-### 1. DATA
-```
-22,32,43,44,50,55,61,65,70,74
-```
-
-### 2. b-file — nothing to upload
-`A217059` has no uploaded b-file, so the OEIS generates one from DATA and the new term appears there by itself. `b217059.txt` (10 rows, 0 to 9) is in this repository if an editor ever asks for one.
-
-### 3. EXTENSIONS — ADD this line; never alter the lines already there
-```
-a(9) from _Leo Y. Zhang_, Jul 31 2026
-```
-
-### 4. COMMENT — paste verbatim, including the wrapper lines
-```
-From _Leo Y. Zhang_, Jul 31 2026: (Start)
-a(9) = 74 was computed with a SAT solver.
-
-Written out, a(9) is the least n such that every partition of [1,n] into 9+2 classes contains two elements in one of the first 9 classes, a 3-term arithmetic progression in the next, or a 5-term one in the last.
-
-The following partition of [1,73] has none of those, so a(9) > 73. Each "." is one of the 9 classes that must stay a singleton, and 1 and 2 mark the two remaining classes (no 3-term AP in the class marked 1 and no 5-term AP in the class marked 2):
-
-21121222212222.22221122112..2.2222.2222.2122..2211221212222.2222121221122
-
-That no such partition of [1,74] exists was confirmed by a second, independent encoding. The partition above was found by search.
-(End)
-```
-
-*Evidence behind the two sentences above, kept out of the comment because the editors asked for brevity: refutation 3860 s, all 76 cubes; witness 3464 s; free construction alone would give only a(9) >= 71. The family gate reproduced the published a(8) before this term was claimed.*
-
-### 5. Verify the lower bound yourself
-```
-python vdw/verify_certificate.py "21121222212222.22221122112..2.2222.2222.2122..2211221212222.2222121221122" 9 3 5
 ```
 
 ## A217236 — a(4) = 84
@@ -158,7 +116,7 @@ That no such partition of [1,84] exists was confirmed by a second, independent e
 (End)
 ```
 
-*Evidence behind the two sentences above, kept out of the comment because the editors asked for brevity: refutation 7965 s, all 80 cubes; witness 6470 s; free construction alone would give only a(4) >= 80. The family gate reproduced the published a(3) before this term was claimed.*
+*Evidence behind the two sentences above, kept out of the comment because the editors asked for brevity: refutation 7965 s, all 80 cubes; witness 6470 s; free construction alone would give only a(4) >= 80. The family gate reproduced the published a(3) = 79 before this term was claimed (probe_A217236_gate_sat_n78.json + probe_A217236_gate_unsat_n79.json).*
 
 ### 5. Verify the lower bound yourself
 ```
@@ -199,7 +157,7 @@ That no such partition of [1,52] exists was confirmed by a second, independent e
 (End)
 ```
 
-*Evidence behind the two sentences above, kept out of the comment because the editors asked for brevity: refutation 4507 s, all 36 cubes; witness 1520 s; free construction alone would give only a(19) >= 52. The family gate reproduced the published a(18) before this term was claimed.*
+*Evidence behind the two sentences above, kept out of the comment because the editors asked for brevity: refutation 4507 s, all 36 cubes; witness 1520 s; free construction alone would give only a(19) >= 52. The family gate reproduced the published a(18) = 51 before this term was claimed (validate_gate05.json).*
 
 ### 5. Verify the lower bound yourself
 ```
@@ -240,9 +198,15 @@ That no such partition of [1,68] exists was confirmed by a second, independent e
 (End)
 ```
 
-*Evidence behind the two sentences above, kept out of the comment because the editors asked for brevity: refutation 7269 s, all 40 cubes; witness 107 s; free construction alone would give only a(7) >= 68. The family gate reproduced the published a(6) before this term was claimed.*
+*Evidence behind the two sentences above, kept out of the comment because the editors asked for brevity: refutation 7269 s, all 40 cubes; witness 107 s; free construction alone would give only a(7) >= 68. The family gate reproduced the published a(6) = 67 before this term was claimed (validate_gate07.json).*
 
 ### 5. Verify the lower bound yourself
 ```
 python vdw/verify_certificate.py "..1112112111.2221221222.1112112111.2221221222.1112112111.2221221222" 7 4 4
 ```
+
+---
+
+## NOT ready — do not submit these
+
+* **A217059 a(9) = 74** — no family gate evidence reproducing the published a(8) = 70 — DO NOT SUBMIT. The Never list forbids claiming a term whose family gate did not reproduce the published value; run the gate and let it finish, then regenerate this pack
