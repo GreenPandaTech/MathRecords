@@ -1,6 +1,6 @@
-# Four new terms for mixed van der Waerden numbers
+# Five new terms for mixed van der Waerden numbers
 
-**Results.** Four previously uncomputed values, in four different families
+**Results.** Five previously uncomputed values, in five different families
 whose published lists have all stood since 2012:
 
 | sequence | new term | value |
@@ -9,13 +9,19 @@ whose published lists have all stood since 2012:
 | [A217005](https://oeis.org/A217005) | `a(19) = w(21; 2^19, 3, 3)` | **52** |
 | [A217007](https://oeis.org/A217007) | `a(7) = w(9; 2^7, 4, 4)` | **68** |
 | [A217059](https://oeis.org/A217059) | `a(9) = w(11; 2^9, 3, 5)` | **74** |
+| [A217236](https://oeis.org/A217236) | `a(4) = w(6; 2^4, 4, 5)` | **84** |
 
 ```
 A217058:  18, 21, 25, 29, 33, 36, 40, 42, 45, 48, 52, 55, 57
 A217005:  9, 14, 17, 20, 21, 24, 25, 28, 31, 33, 35, 37, 39, 42, 44, 46, 48, 50, 51, 52
 A217007:  35, 40, 53, 54, 56, 66, 67, 68
 A217059:  22, 32, 43, 44, 50, 55, 61, 65, 70, 74
+A217236:  55, 71, 75, 79, 84
 ```
+
+Nothing here has been accepted by the OEIS. `A217058(12) = 57` has been
+submitted and is under review (status *proposed*); the other four have not been
+submitted.
 
 Each is established by a pair: an explicit colouring (checkable against the
 definition by a program that never invokes a solver) and a machine refutation
@@ -24,7 +30,11 @@ gives A217005, which follows the same method through a partly different code
 path -- its two colour targets are *equal*, so a second symmetry breaker is
 active that does nothing at all in the first family.  Section 9 gives A217007,
 whose targets are equal *and* both 4, moving the work from 3-term to 4-term
-progressions.
+progressions.  Section 10 gives A217059, targets 3 and 5, whose lower bound had
+to be found by search rather than inherited.  Section 11 gives A217236, targets
+4 and 5 -- the largest instance of the five, and the family that prompted the
+encoding audit to be extended to its target pair, which it had not previously
+covered.
 
 ---
 
@@ -187,9 +197,10 @@ represents the problem. Five independent guards were applied.
 On instances small enough to enumerate exhaustively, the set of colourings
 satisfying the CNF was compared against the set accepted by a direct
 transcription of the definition that never inspects a clause. They agreed
-**exactly, in both directions**, on all 9 cases tested, spanning targets
-`[3,4]`, `[3,3]`, `[3,5]`, `[3,3,3]` and `[4,4]`. Nothing invented, nothing
-lost. (`vdw/encoding_audit.py`)
+**exactly, in both directions**, on all 11 cases tested, spanning targets
+`[3,4]`, `[3,3]`, `[3,5]`, `[3,3,3]`, `[4,4]` and `[4,5]` — one shape for every
+family claimed in this paper. Nothing invented, nothing lost.
+(`vdw/encoding_audit.py`)
 
 ### 5.2 Symmetry breaking loses nothing
 
@@ -496,16 +507,130 @@ the family's differences are erratic (an 11 and a 1 sit adjacent), which is
 precisely why the free lower bound was a poor predictor and why the value had to
 be cornered rather than extrapolated.
 
-### 10.4 Honest qualification
+### 10.4 Cross-checked since
 
-The refutation was established **once**. As with A217005 and A217007, it has not
-been re-derived through the `vdw2` engine that carries no symmetry breaking, which
-is what makes A217058's upper bound the strongest of the four. What supports this
-one is the shared machinery: an encoding audited against the definition on this
-target shape, symmetry breaking proven to lose no orbit, the crash-honest rule
-that every cube must report explicitly (all 76 did), and the family's own
-validation gate. A `vdw2` cross-check at `n=74, j=9` is the outstanding work
-before this is submitted anywhere.
+This section formerly recorded that the refutation had been established only once
+and that a `vdw2` cross-check at `n=74, j=9` was outstanding. That cross-check has
+since been run and **agrees** (`vdw/crosscheck_a9.json`), as have the verdict files
+for every other term in this paper. All five refutations therefore rest on more
+than the primary engine alone, on top of the shared machinery that always applied:
+an encoding audited against the definition on this target shape, symmetry breaking
+proven to lose no orbit, the crash-honest rule that every cube must report
+explicitly (all 76 did), and the family's own validation gate.
+
+## 11. The fifth term: A217236(4) = 84
+
+`A217236(j) = w(j+2; 2^j, 4, 5)` -- colour 1 must avoid **4**-term arithmetic
+progressions, colour 2 must avoid **5**-term ones. Published terms (OEIS, offset
+0, keyword `hard`, contributed by Tanbir Ahmed in September 2012 and confirmed
+live against the OEIS API on 2026-07-29):
+
+```
+a(0..3) = 55, 71, 75, 79
+```
+
+Four terms is the shortest published list of the five families here, and `j = 4`
+the smallest wildcard budget, but `n` is the largest: the refuted instance is
+`[1,84]`.
+
+**Theorem.** `a(4) = w(6; 2^4, 4, 5) = 84`.
+
+**Lower bound.** This colouring of `[1,83]` uses exactly 4 wildcards, with no
+4-term AP in colour 1 and no 5-term AP in colour 2, so `a(4) > 83`:
+
+```
+122121221221212221.212121221121222211121.221212222.2222.212211211122221211122212122
+```
+
+ACCEPTED by `vdw/verify_certificate.py`, which reports `>= 84`. Found by search
+in 6469.7 s, cube 52 of 80. (`vdw/probe_A217236_a4_n83.json`)
+
+**Upper bound.** `n = 84, j = 4` is unsatisfiable -- 7965.0 s, all 80 cubes
+reporting an explicit verdict. (`vdw/probe_A217236_a4_n84.json`)
+
+Together, `a(4) = 84`.
+
+### 11.1 The witness is search, not the inherited construction
+
+Section 4.3's construction applied to `a(3) = 79` gives `a(4) >= 80` for
+nothing, four below the truth. That is the whole of what came free: the
+colouring above was found by search at `n = 83`, so it is an independent object
+rather than the previous term's certificate with a wildcard appended -- the
+qualification section 9.3 had to make for A217007 does not apply here. Distinct
+witnesses at `n = 80` (647.0 s), `n = 81` (1920.7 s) and `n = 82` were found in
+an earlier pass over the family and are accepted by the standalone verifier too.
+
+### 11.2 Bracketing
+
+Section 4.3's free bound put the floor at 80. A ceiling probe at `n = 87`,
+placed on a predicted step of 8, refuted in 6688.4 s and bracketed the value in
+`[80, 87]`. Bisection closed the interval: `n = 83` SAT (6469.7 s) raised the
+floor to 84, `n = 85` UNSAT (9061.5 s) dropped the ceiling to 85, and `n = 84`
+UNSAT (7965.0 s) fixed the term. Four probes, no climb. Monotonicity
+(section 4.2) is what licenses this -- any UNSAT caps the answer and any SAT
+raises the floor -- and it is the same argument as section 10.2, applied to a
+bracket rather than to two ends approached in parallel.
+
+The observed step is `a(4) - a(3) = 5`, against published differences
+
+```
+16, 4, 4
+```
+
+so an extrapolation from the last two steps would have said 83, which the
+witness at `n = 83` refutes outright.
+
+`[4,5]` at `k = 4` yields **80** cubes, against 76 for `[3,5]`, 75 for `[3,4]`,
+40 for `[4,4]` and 36 for `[3,3]`.
+
+### 11.3 The family gate
+
+The gate was run before the extension was attempted, and passed: published
+`a(3) = 79` was reproduced exactly -- SAT at `n = 78` with a verified witness
+using all 3 wildcards (404.9 s) and UNSAT at `n = 79` (377.7 s), both at
+`j = 3`.
+
+### 11.4 The refutation, three ways
+
+`n = 84, j = 4` was refuted along three paths chosen so that they cannot share a
+mistake:
+
+| encoding | symmetry | solver | cubes | verdict | time |
+|---|---|---|---|---|---|
+| vdw4 | reversal ON | CaDiCaL 1.9.5 | k=4 | UNSAT | 7965.0 s |
+| **vdw2** | **none at all** | CaDiCaL 1.9.5 | k=4 | **UNSAT** | 10959.3 s |
+| vdw4 | reversal OFF | CaDiCaL 1.9.5 | k=4 | **UNSAT** | 16975.3 s |
+
+The second row imposes no lex-leader constraint of any kind on this family and
+so searches the full unreduced space; it cannot inherit an error from the
+reversal-symmetry constraint. The third isolates that constraint inside the
+otherwise identical encoding: with it switched off the same refutation took 2.1
+times as long. `vdw2` also re-ran the satisfiable side at `n = 83` from scratch
+and returned a verified witness of its own in 9892.7 s; it arrived at the same
+colouring as above.
+(`vdw/crosscheck_a4.json`, `AGREES: true`)
+
+### 11.5 Honest qualification
+
+The targets `4` and `5` are distinct, so as in A217058 the colour-swap breaker
+emits no clauses and reversal symmetry is the only breaking in force -- which is
+precisely the constraint the second and third rows above were run to isolate.
+
+When this term was written up, the exhaustive encoding audit of section 5.1 did
+**not** cover `[4,5]`: it covered `[3,4]`, `[3,3]`, `[3,5]`, `[3,3,3]` and
+`[4,4]`, so both target values appearing here had been enumerated against the
+definition, but never this pair together. The argument available at the time was
+that the clause generator is generic in the targets and branches on no pair — an
+argument, not the exhaustion the other four families enjoyed.
+
+Rather than leave it at that, the audit was extended: `(10, 0, [4,5])` and
+`(11, 1, [4,5])` were added to its case list on 2026-07-31 and both pass. The
+CNF accepts exactly the colourings the definition accepts — 538 and 7631
+respectively, equal in both directions — and symmetry breaking loses no orbit.
+This family now rests on the same exhaustive check as the others, alongside the
+family gate at the adjacent index, the crash-honest rule that every cube must
+report explicitly (all 80 did at `n = 84`), and the three-way agreement of
+section 11.4.
 
 ## References
 

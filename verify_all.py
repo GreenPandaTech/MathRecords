@@ -45,6 +45,10 @@ CLAIMS = {
                 [22, 32, 43, 44, 50, 55, 61, 65, 70],
                 9, 74, 'probe_A217059_a9_n73.json',
                 'probe_A217059_a9_n74.json'),
+    'A217236': ([4, 5],
+                [55, 71, 75, 79],
+                4, 84, 'probe_A217236_a4_n83.json',
+                'probe_A217236_a4_n84.json'),
 }
 
 _fail = []
@@ -165,7 +169,12 @@ def main():
         section('audits re-executed (slow)')
         rc, out = run([PY, 'encoding_audit.py'], VDW)
         check('encoding audit: CNF equals the definition',
-              rc == 0 and 'all 9 cases pass' in out)
+              # matched by pattern, not by a hardcoded count: pinning the number
+              # here means adding a case to the audit fails this check instead of
+              # strengthening it, which is backwards.
+              rc == 0 and re.search(r'all \d+ cases pass', out) is not None,
+              re.search(r'all \d+ cases pass', out).group(0) if
+              re.search(r'all \d+ cases pass', out) else '')
         rc, out = run([PY, 'scale_test.py'], VDW)
         check('scale test: wildcard budget correct at n=55..58, j=12',
               rc == 0 and 'SCALE TEST PASSED' in out)

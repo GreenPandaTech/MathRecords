@@ -3,14 +3,14 @@
 Generated from the evidence files, not typed. Every certificate, timing and
 DATA line below was read out of the JSON the computation wrote.
 
-**4 term(s) ready to submit.**
+**5 term(s) ready to submit.**
 
-## Do this first, once
+## Do this first, every time
 
-1. Register at https://oeis.org/ — approval is manual and takes a day or two.
-   This is the only step with a waiting period, so start it before anything else.
-2. Run `python verify_all.py` here. It must exit 0. If it does not, a claim has
-   drifted from its evidence and nothing should be submitted until it passes.
+Run `python verify_all.py` here. It must exit 0. If it does not, a claim has
+drifted from its evidence and nothing should be submitted until it passes.
+
+Registration is already done, so there is no waiting period any more.
 
 ## Order to submit
 
@@ -18,26 +18,27 @@ Ranked by evidence actually on disk, strongest first:
 
 * **A217058** a(12)=57 — 3 confirmed refutation path(s), lower bound found by search
 * **A217059** a(9)=74 — 3 confirmed refutation path(s), lower bound found by search
+* **A217236** a(4)=84 — 3 confirmed refutation path(s), lower bound found by search
 * **A217005** a(19)=52 — 3 confirmed refutation path(s), lower bound from the free construction
 * **A217007** a(7)=68 — 3 confirmed refutation path(s), lower bound from the free construction
 
-**Submit A217058 first, and alone.** It is the best-evidenced term, so it is the
-safest place to find out what the editors ask for. Wait for one round-trip
-before sending the others — you will learn more from one reply than from any
-amount of preparation, and if an editor questions your strongest result you
-want that on one submission rather than four.
-
-Note that this is NOT A217058, despite it being the first result found. Its extra
-refutations predate the cross-check harness, so it carries two confirmed paths
-where the later terms carry three, and its third attempt was abandoned after 7.4
-hours without finishing. `strengthen.py` is running that missing path now; once
-it reports AGREES, re-run this generator and the ranking will update.
+**Submit A217058 first, and alone**, then wait for it to be ACCEPTED before
+sending the next. One round-trip teaches more than any amount of preparation,
+and a question about your strongest result is better answered once than five
+times. `A217058` was submitted on Jul 30 2026 and is under review.
 
 ## Never
 
 * Submit a term whose cross-check does not say AGREES.
 * Retype a certificate. Copy it. A single wrong character is a retraction.
 * Claim a term whose family gate did not reproduce the published value.
+* Alter or delete a line already in EXTENSIONS. Add yours below the existing ones.
+* Write British spellings in a submission: the OEIS uses US English (color,
+  relabeling). The comments below are already US-spelled.
+* Let a comment grow. The editors asked for brevity and for every technical term
+  to be defined before use, since the entry itself never mentions partitions or
+  arithmetic progressions. If in doubt, submit DATA and EXTENSIONS with no comment
+  at all — an editor explicitly offered that.
 
 ---
 
@@ -52,36 +53,30 @@ Cross-check: **AGREES** — the refutation was re-derived through `vdw2`, which 
 18,21,25,29,33,36,40,42,45,48,52,55,57
 ```
 
-### 2. b-file
-Upload `b217058.txt` (13 rows, 0 to 12).
+### 2. b-file — nothing to upload
+`A217058` has no uploaded b-file, so the OEIS generates one from DATA and the new term appears there by itself. `b217058.txt` (13 rows, 0 to 12) is in this repository if an editor ever asks for one.
 
-### 3. EXTENSIONS
+### 3. EXTENSIONS — ADD this line; never alter the lines already there
 ```
-a(12) from Leo Y. Zhang, Jul 30 2026
+a(12) from _Leo Y. Zhang_, Jul 31 2026
 ```
 
-### 4. COMMENT — paste verbatim
+### 4. COMMENT — paste verbatim, including the wrapper lines
 ```
-a(12) = w(12+2; 2^12, 3, 4) = 57.
+From _Leo Y. Zhang_, Jul 31 2026: (Start)
+a(12) = 57 was computed with a SAT solver.
 
-Lower bound. The following colouring of [1,56] uses 12 wildcards (limit 12) and has no 3-term AP in colour 1 and no 4-term AP in colour 2, so a(12) > 56:
+Written out, a(12) is the least n such that every partition of [1,n] into 12+2 classes contains two elements in one of the first 12 classes, a 3-term arithmetic progression in the next, or a 4-term one in the last.
+
+The following partition of [1,56] has none of those, so a(12) > 56. Each "." is one of the 12 classes that must stay a singleton, and 1 and 2 mark the two remaining classes (no 3-term AP in the class marked 1 and no 4-term AP in the class marked 2):
 
 2.21221212.12.22211.112.2221.222.2.1..12221211212..22212
 
-('.' denotes one of the j colour classes with target 2, each holding at most one element.)
-
-This is a certificate rather than an assertion: it is checked directly against the definition, in milliseconds, by a program that uses only the Python standard library and never invokes a SAT solver, so verifying it requires trusting none of the search code.
-
-Upper bound. No valid colouring of [1,57] with at most 12 wildcards exists. The corresponding SAT instance is unsatisfiable (6257 s, all 75 cubes).
-
-Because "no colouring exists" asserts an absence, it is only as strong as the claim that the formula faithfully encodes the problem. Guards applied: the CNF was proved equal to a direct transcription of the definition by exhaustive enumeration on small instances, in both directions; the symmetry-breaking constraint was proved to retain at least one representative of every orbit, since losing one is exactly how a satisfiable instance would be misreported as unsatisfiable; the wildcard cardinality constraint was tested at full scale from both sides; and published values of this family were re-derived by the same engine before any new term was claimed.
-
-The parallel search also reports unsatisfiability only when every cube has returned an explicit verdict. A worker terminated by the operating system raises an error rather than being counted as an empty branch; without that distinction a killed worker is indistinguishable from a proof.
-
-The refutation was additionally re-derived by a second, earlier engine that imposes no lexicographic symmetry-breaking constraint at all, using a different solver and a different cube depth. It agreed. That path cannot inherit an error from the symmetry-breaking argument, which is the only novel component of the primary engine.
-
-Note on the lower bound: the free append-wildcard construction only gives a(12) >= 56, so the colouring above was found by search (3926 s) and is an independent object rather than a relabelling of the previous term.
+That no such partition of [1,57] exists was confirmed by a second, independent encoding. The partition above was found by search.
+(End)
 ```
+
+*Evidence behind the two sentences above, kept out of the comment because the editors asked for brevity: refutation 6257 s, all 75 cubes; witness 3926 s; free construction alone would give only a(12) >= 56. The family gate reproduced the published a(11) before this term was claimed.*
 
 ### 5. Verify the lower bound yourself
 ```
@@ -99,40 +94,75 @@ Cross-check: **AGREES** — the refutation was re-derived through `vdw2`, which 
 22,32,43,44,50,55,61,65,70,74
 ```
 
-### 2. b-file
-Upload `b217059.txt` (10 rows, 0 to 9).
+### 2. b-file — nothing to upload
+`A217059` has no uploaded b-file, so the OEIS generates one from DATA and the new term appears there by itself. `b217059.txt` (10 rows, 0 to 9) is in this repository if an editor ever asks for one.
 
-### 3. EXTENSIONS
+### 3. EXTENSIONS — ADD this line; never alter the lines already there
 ```
-a(9) from Leo Y. Zhang, Jul 30 2026
+a(9) from _Leo Y. Zhang_, Jul 31 2026
 ```
 
-### 4. COMMENT — paste verbatim
+### 4. COMMENT — paste verbatim, including the wrapper lines
 ```
-a(9) = w(9+2; 2^9, 3, 5) = 74.
+From _Leo Y. Zhang_, Jul 31 2026: (Start)
+a(9) = 74 was computed with a SAT solver.
 
-Lower bound. The following colouring of [1,73] uses 9 wildcards (limit 9) and has no 3-term AP in colour 1 and no 5-term AP in colour 2, so a(9) > 73:
+Written out, a(9) is the least n such that every partition of [1,n] into 9+2 classes contains two elements in one of the first 9 classes, a 3-term arithmetic progression in the next, or a 5-term one in the last.
+
+The following partition of [1,73] has none of those, so a(9) > 73. Each "." is one of the 9 classes that must stay a singleton, and 1 and 2 mark the two remaining classes (no 3-term AP in the class marked 1 and no 5-term AP in the class marked 2):
 
 21121222212222.22221122112..2.2222.2222.2122..2211221212222.2222121221122
 
-('.' denotes one of the j colour classes with target 2, each holding at most one element.)
-
-This is a certificate rather than an assertion: it is checked directly against the definition, in milliseconds, by a program that uses only the Python standard library and never invokes a SAT solver, so verifying it requires trusting none of the search code.
-
-Upper bound. No valid colouring of [1,74] with at most 9 wildcards exists. The corresponding SAT instance is unsatisfiable (3860 s, all 76 cubes).
-
-Because "no colouring exists" asserts an absence, it is only as strong as the claim that the formula faithfully encodes the problem. Guards applied: the CNF was proved equal to a direct transcription of the definition by exhaustive enumeration on small instances, in both directions; the symmetry-breaking constraint was proved to retain at least one representative of every orbit, since losing one is exactly how a satisfiable instance would be misreported as unsatisfiable; the wildcard cardinality constraint was tested at full scale from both sides; and published values of this family were re-derived by the same engine before any new term was claimed.
-
-The parallel search also reports unsatisfiability only when every cube has returned an explicit verdict. A worker terminated by the operating system raises an error rather than being counted as an empty branch; without that distinction a killed worker is indistinguishable from a proof.
-
-The refutation was additionally re-derived by a second, earlier engine that imposes no lexicographic symmetry-breaking constraint at all, using a different solver and a different cube depth. It agreed. That path cannot inherit an error from the symmetry-breaking argument, which is the only novel component of the primary engine.
-
-Note on the lower bound: the free append-wildcard construction only gives a(9) >= 71, so the colouring above was found by search (3464 s) and is an independent object rather than a relabelling of the previous term.
+That no such partition of [1,74] exists was confirmed by a second, independent encoding. The partition above was found by search.
+(End)
 ```
+
+*Evidence behind the two sentences above, kept out of the comment because the editors asked for brevity: refutation 3860 s, all 76 cubes; witness 3464 s; free construction alone would give only a(9) >= 71. The family gate reproduced the published a(8) before this term was claimed.*
 
 ### 5. Verify the lower bound yourself
 ```
 python vdw/verify_certificate.py "21121222212222.22221122112..2.2222.2222.2122..2211221212222.2222121221122" 9 3 5
+```
+
+## A217236 — a(4) = 84
+
+Page: https://oeis.org/A217236  ·  click **edit**
+
+Cross-check: **AGREES** — the refutation was re-derived through `vdw2`, which carries no symmetry-breaking constraint, so it cannot inherit an error from the one piece of new mathematics in the main engine.
+
+### 1. DATA
+```
+55,71,75,79,84
+```
+
+### 2. b-file — nothing to upload
+`A217236` has no uploaded b-file, so the OEIS generates one from DATA and the new term appears there by itself. `b217236.txt` (5 rows, 0 to 4) is in this repository if an editor ever asks for one.
+
+### 3. EXTENSIONS — ADD this line; never alter the lines already there
+```
+a(4) from _Leo Y. Zhang_, Jul 31 2026
+```
+
+### 4. COMMENT — paste verbatim, including the wrapper lines
+```
+From _Leo Y. Zhang_, Jul 31 2026: (Start)
+a(4) = 84 was computed with a SAT solver.
+
+Written out, a(4) is the least n such that every partition of [1,n] into 4+2 classes contains two elements in one of the first 4 classes, a 4-term arithmetic progression in the next, or a 5-term one in the last.
+
+The following partition of [1,83] has none of those, so a(4) > 83. Each "." is one of the 4 classes that must stay a singleton, and 1 and 2 mark the two remaining classes (no 4-term AP in the class marked 1 and no 5-term AP in the class marked 2):
+
+122121221221212221.212121221121222211121.221212222.2222.212211211122221211122212122
+
+That no such partition of [1,84] exists was confirmed by a second, independent encoding. The partition above was found by search.
+(End)
+```
+
+*Evidence behind the two sentences above, kept out of the comment because the editors asked for brevity: refutation 7965 s, all 80 cubes; witness 6470 s; free construction alone would give only a(4) >= 80. The family gate reproduced the published a(3) before this term was claimed.*
+
+### 5. Verify the lower bound yourself
+```
+python vdw/verify_certificate.py "122121221221212221.212121221121222211121.221212222.2222.212211211122221211122212122" 4 4 5
 ```
 
 ## A217005 — a(19) = 52
@@ -146,36 +176,30 @@ Cross-check: **AGREES** — the refutation was re-derived through `vdw2`, which 
 9,14,17,20,21,24,25,28,31,33,35,37,39,42,44,46,48,50,51,52
 ```
 
-### 2. b-file
-Upload `b217005.txt` (20 rows, 0 to 19).
+### 2. b-file — nothing to upload
+`A217005` has no uploaded b-file, so the OEIS generates one from DATA and the new term appears there by itself. `b217005.txt` (20 rows, 0 to 19) is in this repository if an editor ever asks for one.
 
-### 3. EXTENSIONS
+### 3. EXTENSIONS — ADD this line; never alter the lines already there
 ```
-a(19) from Leo Y. Zhang, Jul 30 2026
+a(19) from _Leo Y. Zhang_, Jul 31 2026
 ```
 
-### 4. COMMENT — paste verbatim
+### 4. COMMENT — paste verbatim, including the wrapper lines
 ```
-a(19) = w(19+2; 2^19, 3, 3) = 52.
+From _Leo Y. Zhang_, Jul 31 2026: (Start)
+a(19) = 52 was computed with a SAT solver.
 
-Lower bound. The following colouring of [1,51] uses 19 wildcards (limit 19) and has no 3-term AP in colour 1 and no 3-term AP in colour 2, so a(19) > 51:
+Written out, a(19) is the least n such that every partition of [1,n] into 19+2 classes contains two elements in one of the first 19 classes, or a 3-term arithmetic progression in either of the last two.
+
+The following partition of [1,51] has none of those, so a(19) > 51. Each "." is one of the 19 classes that must stay a singleton, and 1 and 2 mark the two remaining classes (neither of them contains a 3-term AP):
 
 ..11.1122.2211.1122.22.........11.1122.2211.1122.22
 
-('.' denotes one of the j colour classes with target 2, each holding at most one element.)
-
-This is a certificate rather than an assertion: it is checked directly against the definition, in milliseconds, by a program that uses only the Python standard library and never invokes a SAT solver, so verifying it requires trusting none of the search code.
-
-Upper bound. No valid colouring of [1,52] with at most 19 wildcards exists. The corresponding SAT instance is unsatisfiable (4507 s, all 36 cubes).
-
-Because "no colouring exists" asserts an absence, it is only as strong as the claim that the formula faithfully encodes the problem. Guards applied: the CNF was proved equal to a direct transcription of the definition by exhaustive enumeration on small instances, in both directions; the symmetry-breaking constraint was proved to retain at least one representative of every orbit, since losing one is exactly how a satisfiable instance would be misreported as unsatisfiable; the wildcard cardinality constraint was tested at full scale from both sides; and published values of this family were re-derived by the same engine before any new term was claimed.
-
-The parallel search also reports unsatisfiability only when every cube has returned an explicit verdict. A worker terminated by the operating system raises an error rather than being counted as an empty branch; without that distinction a killed worker is indistinguishable from a proof.
-
-The refutation was additionally re-derived by a second, earlier engine that imposes no lexicographic symmetry-breaking constraint at all, using a different solver and a different cube depth. It agreed. That path cannot inherit an error from the symmetry-breaking argument, which is the only novel component of the primary engine.
-
-Note on the lower bound: a(19) >= 52 follows without any search, by taking a valid colouring of [1,a(18)-1] and making one further position a wildcard. The certificate above is that construction rather than an independently discovered colouring, and is included for checkability rather than as separate evidence; the computational content of this term is the refutation.
+That no such partition of [1,52] exists was confirmed by a second, independent encoding. The partition above is the previous term's with one more singleton, so the content of this term is the upper bound.
+(End)
 ```
+
+*Evidence behind the two sentences above, kept out of the comment because the editors asked for brevity: refutation 4507 s, all 36 cubes; witness 1520 s; free construction alone would give only a(19) >= 52. The family gate reproduced the published a(18) before this term was claimed.*
 
 ### 5. Verify the lower bound yourself
 ```
@@ -193,36 +217,30 @@ Cross-check: **AGREES** — the refutation was re-derived through `vdw2`, which 
 35,40,53,54,56,66,67,68
 ```
 
-### 2. b-file
-Upload `b217007.txt` (8 rows, 0 to 7).
+### 2. b-file — nothing to upload
+`A217007` has no uploaded b-file, so the OEIS generates one from DATA and the new term appears there by itself. `b217007.txt` (8 rows, 0 to 7) is in this repository if an editor ever asks for one.
 
-### 3. EXTENSIONS
+### 3. EXTENSIONS — ADD this line; never alter the lines already there
 ```
-a(7) from Leo Y. Zhang, Jul 30 2026
+a(7) from _Leo Y. Zhang_, Jul 31 2026
 ```
 
-### 4. COMMENT — paste verbatim
+### 4. COMMENT — paste verbatim, including the wrapper lines
 ```
-a(7) = w(7+2; 2^7, 4, 4) = 68.
+From _Leo Y. Zhang_, Jul 31 2026: (Start)
+a(7) = 68 was computed with a SAT solver.
 
-Lower bound. The following colouring of [1,67] uses 7 wildcards (limit 7) and has no 4-term AP in colour 1 and no 4-term AP in colour 2, so a(7) > 67:
+Written out, a(7) is the least n such that every partition of [1,n] into 7+2 classes contains two elements in one of the first 7 classes, or a 4-term arithmetic progression in either of the last two.
+
+The following partition of [1,67] has none of those, so a(7) > 67. Each "." is one of the 7 classes that must stay a singleton, and 1 and 2 mark the two remaining classes (neither of them contains a 4-term AP):
 
 ..1112112111.2221221222.1112112111.2221221222.1112112111.2221221222
 
-('.' denotes one of the j colour classes with target 2, each holding at most one element.)
-
-This is a certificate rather than an assertion: it is checked directly against the definition, in milliseconds, by a program that uses only the Python standard library and never invokes a SAT solver, so verifying it requires trusting none of the search code.
-
-Upper bound. No valid colouring of [1,68] with at most 7 wildcards exists. The corresponding SAT instance is unsatisfiable (7269 s, all 40 cubes).
-
-Because "no colouring exists" asserts an absence, it is only as strong as the claim that the formula faithfully encodes the problem. Guards applied: the CNF was proved equal to a direct transcription of the definition by exhaustive enumeration on small instances, in both directions; the symmetry-breaking constraint was proved to retain at least one representative of every orbit, since losing one is exactly how a satisfiable instance would be misreported as unsatisfiable; the wildcard cardinality constraint was tested at full scale from both sides; and published values of this family were re-derived by the same engine before any new term was claimed.
-
-The parallel search also reports unsatisfiability only when every cube has returned an explicit verdict. A worker terminated by the operating system raises an error rather than being counted as an empty branch; without that distinction a killed worker is indistinguishable from a proof.
-
-The refutation was additionally re-derived by a second, earlier engine that imposes no lexicographic symmetry-breaking constraint at all, using a different solver and a different cube depth. It agreed. That path cannot inherit an error from the symmetry-breaking argument, which is the only novel component of the primary engine.
-
-Note on the lower bound: a(7) >= 68 follows without any search, by taking a valid colouring of [1,a(6)-1] and making one further position a wildcard. The certificate above is that construction rather than an independently discovered colouring, and is included for checkability rather than as separate evidence; the computational content of this term is the refutation.
+That no such partition of [1,68] exists was confirmed by a second, independent encoding. The partition above is the previous term's with one more singleton, so the content of this term is the upper bound.
+(End)
 ```
+
+*Evidence behind the two sentences above, kept out of the comment because the editors asked for brevity: refutation 7269 s, all 40 cubes; witness 107 s; free construction alone would give only a(7) >= 68. The family gate reproduced the published a(6) before this term was claimed.*
 
 ### 5. Verify the lower bound yourself
 ```

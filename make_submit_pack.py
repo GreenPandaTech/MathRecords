@@ -42,21 +42,26 @@ def copyright_holder():
 # Read the claims table rather than restating it, so this file cannot disagree
 # with the harness that verifies the repository.
 _src = open(os.path.join(HERE, 'verify_all.py'), encoding='utf-8').read()
-SUBMIT_DATE = 'Jul 30 2026'
 _ns = {}
 exec(_src[_src.index('CLAIMS = {'):_src.index('_fail = []')], _ns)
 CLAIMS = _ns['CLAIMS']
 
-# Sequences whose refutation was re-derived along more than one disjoint path.
-EXTRA_PATHS = {
-    # A217058 predates cross_check.py, so the harness holds no verdict file for it.
-    # PAPER.md section 5.4 records TWO complete refutations (vdw4 with reversal
-    # symmetry on, and vdw2 with none at all) plus a third that was stopped after
-    # 7.4 hours without finishing. So it has two, not three -- fewer than the terms
-    # that came after it. strengthen.py is running the missing third.
-    'A217058': ('twice along disjoint paths -- once by the primary engine and once by '
-                'an earlier engine that imposes no symmetry-breaking constraint at all'),
-}
+
+def _submit_date():
+    """The date that goes in EXTENSIONS and the comment signature.
+
+    Defaults to today, because the pack is generated on the day it is pasted and
+    a stale hardcoded date is a wrong attribution date on a permanent record.
+    `--date "Aug 03 2026"` overrides it. Zero-padded day, which is the OEIS form
+    (the existing line on A217058 reads "Dec 07 2012").
+    """
+    import datetime
+    if '--date' in sys.argv:
+        return sys.argv[sys.argv.index('--date') + 1]
+    return datetime.date.today().strftime('%b %d %Y')
+
+
+SUBMIT_DATE = _submit_date()
 
 
 def load(name):
@@ -68,14 +73,34 @@ def crosscheck(j):
     return load(f'crosscheck_a{j}.json')
 
 
-def targets_phrase(targets):
-    return ' and '.join(f'no {t}-term AP in colour {i}'
-                        for i, t in enumerate(targets, start=1))
+def plain_definition(targets):
+    """What a(j) counts, in words, for a reader who has not seen the setup.
+
+    The OEIS entry's own text never mentions partitions or arithmetic
+    progressions -- the definition of w() lives only in the cited papers. A
+    comment that opens with "the following colouring ... no 3-term AP" is
+    therefore unreadable to anyone but a specialist, which is exactly what the
+    editors objected to on the first submission. So the comment now defines its
+    own terms before using them.
+    """
+    t1, t2 = targets
+    if t1 == t2:
+        return f'or a {t1}-term arithmetic progression in either of the last two'
+    return (f'a {t1}-term arithmetic progression in the next, or a {t2}-term one '
+            f'in the last')
+
+
+def plain_avoids(j, targets):
+    """How to read the certificate string, in the same plain register."""
+    t1, t2 = targets
+    if t1 == t2:
+        return f'neither of them contains a {t1}-term AP'
+    return (f'no {t1}-term AP in the class marked 1 and no {t2}-term AP in the '
+            f'class marked 2')
 
 
 def section(seq, targets, published, j, value, wit, ref, xc):
     cert = wit['certificate']
-    tlist = ', '.join(str(t) for t in targets)
     data = ','.join(str(t) for t in published + [value])
     free_bound = published[-1] + 1
     earned = wit.get('n') == value - 1 and wit.get('witness_verified') \
@@ -92,8 +117,6 @@ def section(seq, targets, published, j, value, wit, ref, xc):
                  '`vdw2`, which carries no symmetry-breaking constraint, so it cannot '
                  'inherit an error from the one piece of new mathematics in the main '
                  'engine.')
-    elif seq in EXTRA_PATHS:
-        L.append(f'Cross-check: refuted {EXTRA_PATHS[seq]}.')
     L.append('')
 
     L.append('### 1. DATA')
@@ -101,77 +124,52 @@ def section(seq, targets, published, j, value, wit, ref, xc):
     L.append(data)
     L.append('```')
     L.append('')
-    L.append('### 2. b-file')
-    L.append(f'Upload `b{seq[1:]}.txt` ({len(published) + 1} rows, 0 to {j}).')
+    L.append('### 2. b-file — nothing to upload')
+    L.append(f'`{seq}` has no uploaded b-file, so the OEIS generates one from DATA and '
+             f'the new term appears there by itself. `b{seq[1:]}.txt` '
+             f'({len(published) + 1} rows, 0 to {j}) is in this repository if an editor '
+             f'ever asks for one.')
     L.append('')
-    L.append('### 3. EXTENSIONS')
+    L.append('### 3. EXTENSIONS — ADD this line; never alter the lines already there')
     L.append('```')
-    L.append(f'a({j}) from {copyright_holder()}, {SUBMIT_DATE}')
+    L.append(f'a({j}) from _{copyright_holder()}_, {SUBMIT_DATE}')
     L.append('```')
     L.append('')
-    L.append('### 4. COMMENT — paste verbatim')
+    L.append('### 4. COMMENT — paste verbatim, including the wrapper lines')
     L.append('```')
-    L.append(f'a({j}) = w({j}+{len(targets)}; 2^{j}, {tlist}) = {value}.')
+    # US spelling throughout: the OEIS style sheet requires it, and an editor
+    # corrected "colour"/"relabelling" by hand on the first submission. The word
+    # "colouring" is avoided altogether in favour of "partition into classes",
+    # which needs no glossary.
+    L.append(f'From _{copyright_holder()}_, {SUBMIT_DATE}: (Start)')
+    L.append(f'a({j}) = {value} was computed with a SAT solver.')
     L.append('')
-    L.append(f'Lower bound. The following colouring of [1,{value-1}] uses '
-             f'{cert.count(".")} wildcards (limit {j}) and has {targets_phrase(targets)}, '
-             f'so a({j}) > {value-1}:')
+    L.append(f'Written out, a({j}) is the least n such that every partition of [1,n] '
+             f'into {j}+{len(targets)} classes contains two elements in one of the '
+             f'first {j} classes, {plain_definition(targets)}.')
+    L.append('')
+    L.append(f'The following partition of [1,{value-1}] has none of those, so '
+             f'a({j}) > {value-1}. Each "." is one of the {j} classes that must stay a '
+             f'singleton, and 1 and 2 mark the two remaining classes '
+             f'({plain_avoids(j, targets)}):')
     L.append('')
     L.append(cert)
     L.append('')
-    L.append("('.' denotes one of the j colour classes with target 2, each holding at "
-             'most one element.)')
-    L.append('')
-    L.append('This is a certificate rather than an assertion: it is checked directly '
-             'against the definition, in milliseconds, by a program that uses only the '
-             'Python standard library and never invokes a SAT solver, so verifying it '
-             'requires trusting none of the search code.')
-    L.append('')
-    L.append(f'Upper bound. No valid colouring of [1,{value}] with at most {j} '
-             f'wildcards exists. The corresponding SAT instance is unsatisfiable '
-             f'({ref["sec"]:.0f} s, {ref["via"]}).')
-    L.append('')
-    L.append('Because "no colouring exists" asserts an absence, it is only as strong '
-             'as the claim that the formula faithfully encodes the problem. Guards '
-             'applied: the CNF was proved equal to a direct transcription of the '
-             'definition by exhaustive enumeration on small instances, in both '
-             'directions; the symmetry-breaking constraint was proved to retain at '
-             'least one representative of every orbit, since losing one is exactly how '
-             'a satisfiable instance would be misreported as unsatisfiable; the '
-             'wildcard cardinality constraint was tested at full scale from both '
-             'sides; and published values of this family were re-derived by the same '
-             'engine before any new term was claimed.')
-    L.append('')
-    L.append('The parallel search also reports unsatisfiability only when every cube '
-             'has returned an explicit verdict. A worker terminated by the operating '
-             'system raises an error rather than being counted as an empty branch; '
-             'without that distinction a killed worker is indistinguishable from a '
-             'proof.')
-    if xc and xc.get('AGREES'):
-        L.append('')
-        L.append('The refutation was additionally re-derived by a second, earlier '
-                 'engine that imposes no lexicographic symmetry-breaking constraint at '
-                 'all, using a different solver and a different cube depth. It agreed. '
-                 'That path cannot inherit an error from the symmetry-breaking '
-                 'argument, which is the only novel component of the primary engine.')
-    elif seq in EXTRA_PATHS:
-        L.append('')
-        L.append(f'The refutation was re-established {EXTRA_PATHS[seq]}.')
-    if not earned:
-        L.append('')
-        L.append(f'Note on the lower bound: a({j}) >= {free_bound} follows without any '
-                 f'search, by taking a valid colouring of [1,a({j-1})-1] and making one '
-                 f'further position a wildcard. The certificate above is that '
-                 f'construction rather than an independently discovered colouring, and '
-                 f'is included for checkability rather than as separate evidence; the '
-                 f'computational content of this term is the refutation.')
+    if earned:
+        origin = 'The partition above was found by search.'
     else:
-        L.append('')
-        L.append(f'Note on the lower bound: the free append-wildcard construction only '
-                 f'gives a({j}) >= {free_bound}, so the colouring above was found by '
-                 f'search ({wit["sec"]:.0f} s) and is an independent object rather than '
-                 f'a relabelling of the previous term.')
+        origin = ("The partition above is the previous term's with one more singleton, "
+                  'so the content of this term is the upper bound.')
+    L.append(f'That no such partition of [1,{value}] exists was confirmed by a second, '
+             f'independent encoding. {origin}')
+    L.append('(End)')
     L.append('```')
+    L.append('')
+    L.append(f'*Evidence behind the two sentences above, kept out of the comment because '
+             f'the editors asked for brevity: refutation {ref["sec"]:.0f} s, {ref["via"]}; '
+             f'witness {wit["sec"]:.0f} s; free construction alone would give only '
+             f'a({j}) >= {free_bound}. The family gate reproduced the published '
+             f'a({j-1}) before this term was claimed.*')
     L.append('')
     L.append('### 5. Verify the lower bound yourself')
     L.append('```')
@@ -189,7 +187,7 @@ def main():
             blocked.append((seq, j, value, 'evidence files missing'))
             continue
         xc = crosscheck(j)
-        if not (xc and xc.get('AGREES')) and seq not in EXTRA_PATHS:
+        if not (xc and xc.get('AGREES')):
             blocked.append((seq, j, value,
                             'no agreeing cross-check — DO NOT SUBMIT until '
                             f'vdw/crosscheck_a{j}.json reports AGREES'))
@@ -202,8 +200,6 @@ def main():
     def strength(r):
         seq, targets, published, j, value, wit, ref, xc = r
         paths = 1 + (1 if (xc or {}).get('vdw2_unsat_confirmed') else 0)                   + (1 if (xc or {}).get('vdw4_norevsym_unsat_confirmed') else 0)
-        if seq in EXTRA_PATHS and not xc:
-            paths = 2
         free = published[-1] + 1
         earned = wit.get('n') == value - 1 and wit.get('witness_verified')             and (value - 1) > (free - 1)
         return (paths, 1 if earned else 0)
@@ -225,12 +221,12 @@ def main():
         '',
         f'**{len(ready)} term(s) ready to submit.**',
         '',
-        '## Do this first, once',
+        '## Do this first, every time',
         '',
-        '1. Register at https://oeis.org/ — approval is manual and takes a day or two.',
-        '   This is the only step with a waiting period, so start it before anything else.',
-        '2. Run `python verify_all.py` here. It must exit 0. If it does not, a claim has',
-        '   drifted from its evidence and nothing should be submitted until it passes.',
+        'Run `python verify_all.py` here. It must exit 0. If it does not, a claim has',
+        'drifted from its evidence and nothing should be submitted until it passes.',
+        '',
+        'Registration is already done, so there is no waiting period any more.',
         '',
         '## Order to submit',
         '',
@@ -238,23 +234,23 @@ def main():
         '',
     ] + ranking + [
         '',
-        f'**Submit {best} first, and alone.** It is the best-evidenced term, so it is the',
-        'safest place to find out what the editors ask for. Wait for one round-trip',
-        'before sending the others — you will learn more from one reply than from any',
-        'amount of preparation, and if an editor questions your strongest result you',
-        'want that on one submission rather than four.',
-        '',
-        'Note that this is NOT A217058, despite it being the first result found. Its extra',
-        'refutations predate the cross-check harness, so it carries two confirmed paths',
-        'where the later terms carry three, and its third attempt was abandoned after 7.4',
-        'hours without finishing. `strengthen.py` is running that missing path now; once',
-        'it reports AGREES, re-run this generator and the ranking will update.',
+        f'**Submit {best} first, and alone**, then wait for it to be ACCEPTED before',
+        'sending the next. One round-trip teaches more than any amount of preparation,',
+        'and a question about your strongest result is better answered once than five',
+        'times. `A217058` was submitted on Jul 30 2026 and is under review.',
         '',
         '## Never',
         '',
         '* Submit a term whose cross-check does not say AGREES.',
         '* Retype a certificate. Copy it. A single wrong character is a retraction.',
         '* Claim a term whose family gate did not reproduce the published value.',
+        '* Alter or delete a line already in EXTENSIONS. Add yours below the existing ones.',
+        '* Write British spellings in a submission: the OEIS uses US English (color,',
+        '  relabeling). The comments below are already US-spelled.',
+        '* Let a comment grow. The editors asked for brevity and for every technical term',
+        '  to be defined before use, since the entry itself never mentions partitions or',
+        '  arithmetic progressions. If in doubt, submit DATA and EXTENSIONS with no comment',
+        '  at all — an editor explicitly offered that.',
         '',
         '---',
         '',

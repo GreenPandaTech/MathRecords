@@ -121,6 +121,12 @@ CASES = [
     (8,  1, [3, 3, 3]),       # three colours
     (9,  2, [4, 4]),
     (10, 0, [3, 5]),
+    # A217236's shape. Added 2026-07-31, when documenting that term made it plain
+    # that [4,5] was the one target pair carrying a new claim while never having
+    # been audited against the definition. Documenting a gap is not the same as
+    # closing it.
+    (10, 0, [4, 5]),
+    (11, 1, [4, 5]),
 ]
 
 
