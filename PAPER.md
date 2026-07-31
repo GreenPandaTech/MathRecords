@@ -237,16 +237,21 @@ mistake:
 | vdw4 | reversal ON | CaDiCaL 1.9.5 | k=4 | UNSAT | 6257.1 s |
 | **vdw2** | **none at all** | CaDiCaL 1.9.5 | k=4 | **UNSAT** | 8036.6 s |
 | vdw4 | reversal OFF | CaDiCaL 3.0.0 | k=5 | (not completed) | — |
+| vdw4 | reversal OFF | CaDiCaL 1.9.5 | k=4 | **UNSAT** | 8317.4 s |
 
 The second row is the one that matters. `vdw2` imposes no lex-leader constraint
 on this family and therefore searches the full unreduced space; it cannot
 inherit an error from the reversal-symmetry constraint, which is the only new
 mathematics in the engine. It agrees.
 
-The third configuration was started and stopped after 7.4 hours without
-finishing — with twice the workers it was running more than three times longer
-than the second, which says the `CaDiCaL 3.0.0` and `k=5` combination is poorly
-matched to this family. It is reported here as incomplete rather than omitted.
+The third row was started and stopped after 7.4 hours without finishing — with
+twice the workers it was running more than three times longer than the second,
+which says the `CaDiCaL 3.0.0` and `k=5` combination is poorly matched to this
+family. It is reported here as incomplete rather than omitted. The same
+reversal-OFF question was settled later in the configuration that suits this
+family — `CaDiCaL 1.9.5` at `k=4`, the fourth row — and it agrees, as does a
+second `vdw2` refutation run on that same pass in 7259.8 s
+(`vdw/crosscheck_a12.json`, `AGREES: true`).
 
 Separately, a randomised-restart portfolio — 8 rounds × 5 seeds × 3 000 000
 conflicts, with initial phases drawn from the class distribution of real
@@ -299,9 +304,9 @@ guard against a solver defect, whereas the audits above target an encoding
 defect, which is by far the likelier failure and the one that low-level proof
 checking cannot detect). It rests on: an encoding proven equal to the definition
 by exhaustion, symmetry breaking proven to lose nothing, the wildcard budget
-tested at exact scale, the whole published sequence reproduced, and two
+tested at exact scale, the whole published sequence reproduced, and three
 independent refutations — one of them through an engine that imposes no symmetry
-breaking at all.
+breaking at all, another with the reversal constraint switched off.
 
 ## 8. The second term: A217005(19) = 52
 
@@ -412,7 +417,7 @@ witness using all 6 wildcards and UNSAT at `n = 67`, both at `j = 6`, 1032.1 s
 for the pair.  A separate family survey had independently refuted `n = 67` at
 `j = 6` in 225.5 s before the gate was written.
 
-### 9.3 Two honest qualifications
+### 9.3 Two honest qualifications, one since discharged
 
 **The lower bound is the free one.**  Section 4.3's construction applied to
 `a(6) = 67` gives `a(7) >= 68` with no solver at all, and the certificate above
@@ -422,15 +427,18 @@ construction rather than a structurally different witness.  It is reported as a
 verified confirmation, not as independent evidence, and the entire computational
 weight of the theorem sits on the refutation at `n = 68`.
 
-**The refutation was established once, not three times.**  A217058's upper bound
-was re-derived through a second engine with no symmetry breaking at all
-(section 5.4); no such cross-check was run here.  What supports this one is the
-shared machinery -- an encoding audited against the definition on this very
-target shape, symmetry breaking proven to lose no orbit, the crash-honest rule
-that every cube must report explicitly (all 40 did), and a full-scale gate in
-this family at the adjacent index.  That is weaker than the first result's
-evidence and is stated as such; a `vdw2` cross-check at `n = 68, j = 7` is the
-obvious next thing to run.
+**The refutation has since been cross-checked.**  This paragraph formerly
+recorded that the refutation had been established once rather than three times,
+and that a `vdw2` cross-check at `n = 68, j = 7` was the obvious next thing to
+run.  It was run and it agrees: `vdw2`, which carries no reversal-symmetry
+constraint at all -- on this equal-target family it breaks only the colour swap
+-- refuted the instance in 7375.6 s, and the primary engine with reversal
+symmetry switched off refuted it in 7285.2 s
+(`vdw/crosscheck_a7.json`, `AGREES: true`).  Beneath that sits the shared
+machinery that applied from the start -- an encoding audited against the
+definition on this very target shape, symmetry breaking proven to lose no orbit,
+the crash-honest rule that every cube must report explicitly (all 40 did), and a
+full-scale gate in this family at the adjacent index.
 
 ### 9.4 An observation, not a claim
 
@@ -556,9 +564,12 @@ Section 4.3's construction applied to `a(3) = 79` gives `a(4) >= 80` for
 nothing, four below the truth. That is the whole of what came free: the
 colouring above was found by search at `n = 83`, so it is an independent object
 rather than the previous term's certificate with a wildcard appended -- the
-qualification section 9.3 had to make for A217007 does not apply here. Distinct
-witnesses at `n = 80` (647.0 s), `n = 81` (1920.7 s) and `n = 82` were found in
-an earlier pass over the family and are accepted by the standalone verifier too.
+lower-bound qualification section 9.3 had to make for A217007 does not apply
+here. Witnesses at `n = 80` (647.0 s), `n = 81` (1920.7 s) and `n = 82` were
+found in an earlier pass over the family and are accepted by the standalone
+verifier too; the `n = 82` colouring is the `n = 81` one with a single further
+element, whereas the `n = 83` colouring above extends none of them -- it already
+differs from all three at the second position.
 
 ### 11.2 Bracketing
 
@@ -566,7 +577,8 @@ Section 4.3's free bound put the floor at 80. A ceiling probe at `n = 87`,
 placed on a predicted step of 8, refuted in 6688.4 s and bracketed the value in
 `[80, 87]`. Bisection closed the interval: `n = 83` SAT (6469.7 s) raised the
 floor to 84, `n = 85` UNSAT (9061.5 s) dropped the ceiling to 85, and `n = 84`
-UNSAT (7965.0 s) fixed the term. Four probes, no climb. Monotonicity
+UNSAT (7965.0 s) fixed the term. Four probes settled it; the earlier climb of
+section 11.1 had by then reached only `n = 82`. Monotonicity
 (section 4.2) is what licenses this -- any UNSAT caps the answer and any SAT
 raises the floor -- and it is the same argument as section 10.2, applied to a
 bracket rather than to two ends approached in parallel.
@@ -620,13 +632,13 @@ When this term was written up, the exhaustive encoding audit of section 5.1 did
 **not** cover `[4,5]`: it covered `[3,4]`, `[3,3]`, `[3,5]`, `[3,3,3]` and
 `[4,4]`, so both target values appearing here had been enumerated against the
 definition, but never this pair together. The argument available at the time was
-that the clause generator is generic in the targets and branches on no pair — an
-argument, not the exhaustion the other four families enjoyed.
+that the clause generator is generic in the targets and branches on no pair --
+an argument, not the exhaustion the other four families enjoyed.
 
 Rather than leave it at that, the audit was extended: `(10, 0, [4,5])` and
 `(11, 1, [4,5])` were added to its case list on 2026-07-31 and both pass. The
-CNF accepts exactly the colourings the definition accepts — 538 and 7631
-respectively, equal in both directions — and symmetry breaking loses no orbit.
+CNF accepts exactly the colourings the definition accepts -- 538 and 7631
+respectively, equal in both directions -- and symmetry breaking loses no orbit.
 This family now rests on the same exhaustive check as the others, alongside the
 family gate at the adjacent index, the crash-honest rule that every cube must
 report explicitly (all 80 did at `n = 84`), and the three-way agreement of
@@ -651,5 +663,5 @@ published values they supply are recorded in `make_submission.py` and
 without them.
 - OEIS Foundation Inc., [A217058](https://oeis.org/A217058), The On-Line
   Encyclopedia of Integer Sequences.
-- M. Heule, O. Kullmann, S. Marijn et al., cube-and-conquer for hard
-  combinatorial instances.
+- M. Heule, O. Kullmann et al., cube-and-conquer for hard combinatorial
+  instances.

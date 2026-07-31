@@ -50,7 +50,7 @@ standard library and never touches a SAT solver — it just reads the string and
 applies the definition.
 
 ```bash
-python vdw/verify_certificate.py "$(cat vdw/cert_n57.txt)" 12 3 4
+python vdw/verify_certificate.py "$(cat vdw/cert_n56.txt)" 12 3 4
 python vdw/verify_certificate.py --selftest     # controls, incl. negative ones
 ```
 
@@ -243,10 +243,13 @@ bracketing valid.
 The step from `a(8) = 70` is **+4**. The published differences are
 `10, 11, 1, 6, 5, 6, 4, 5`, so +4 already occurs at `a(6) = 61 -> a(7) = 65`.
 
-**Cross-checked since.** This qualification used to read that the refutation had
-been established only once and still needed re-deriving through `vdw2`. That work
-is done: `vdw/crosscheck_a9.json` reports AGREES, as do the verdict files for
-every other term. All five now stand on three independent refutation paths.
+**Cross-checked, like the others.** The refutation at `n=74` was re-derived twice
+more along paths that cannot share a mistake: `vdw2`, which carries no
+symmetry-breaking constraint at all, returned UNSAT in 3453 s, and the primary
+engine with reversal symmetry disabled returned UNSAT in 3460 s. `vdw2` also
+found and verified a witness of its own at `n=73` (2416 s). Recorded in
+`vdw/crosscheck_a9.json`, `AGREES`. All five terms now stand on three
+independent refutation paths.
 
 ### A217236(4) = 84
 
@@ -279,7 +282,7 @@ returned UNSAT and capped the answer, `n=83` SAT lifted the floor, `n=85` UNSAT
 tightened the cap, and one run at `n=84` closed the remaining gap. Satisfiability
 is monotone in `n`, which is what makes bracketing valid.
 
-**Cross-checked, like A217058.** The refutation at `n=84` was re-derived twice
+**Cross-checked, like the others.** The refutation at `n=84` was re-derived twice
 more along paths that cannot share a mistake: `vdw2`, which carries no
 symmetry-breaking constraint at all, returned UNSAT in 10959 s, and the primary
 engine with reversal symmetry disabled returned UNSAT in 16975 s. `vdw2` also
@@ -300,7 +303,7 @@ strong prior either way.
 | published values replayed through the engine | 29/29 across 5 families |
 | full-scale gate: `a(11) = 55` reproduced at `j = 11` | both halves |
 | full-scale gate: `a(3) = 79` reproduced at `j = 3` | both halves |
-| `a(4) = 84` refutation re-derived along two disjoint paths | AGREES |
+| every new term's refutation re-derived along two disjoint paths | 5/5 AGREE |
 | certificate under the standalone verifier | ACCEPTED |
 
 Each `SUBMISSION_*.md` is generated mechanically from the result files — the
