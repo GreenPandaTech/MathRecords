@@ -76,11 +76,45 @@ def main() -> int:
             target.write_bytes(want.encode("utf-8"))
             print(f"        rewritten from SUBMIT.md ({len(want)} bytes, LF)")
 
+    # The check above is one-directional: it walks SUBMIT.md and looks for a
+    # matching staged file. It never walks the staging folder, so a sequence
+    # WITHDRAWN from SUBMIT.md keeps a complete, correct-looking, pasteable
+    # COMMENT and b-file, and this tool reported "all staged comment files match
+    # SUBMIT.md" without ever opening it.
+    #
+    # That is not hypothetical. A217059 was blocked in aa9f79c because its family
+    # gate never finished (logs/validate_gate59.log holds two header lines and no
+    # result), and its staged files were written hours earlier and stayed behind.
+    # verify_all.py only asserts the term is ABSENT from SUBMIT.md, which it is,
+    # so every gate the operator is told to run exited 0 while the folder they
+    # paste from still offered the term.
+    #
+    # The operator holds none of the mathematics by design, so an orphan here is
+    # indistinguishable from a live target. Enumerate the folder and refuse.
+    offered = set(bodies())
+    staged: set[str] = set()
+    for path in args.staging.glob("COMMENT-A*.txt"):
+        staged.add(path.stem.removeprefix("COMMENT-"))
+    for path in args.staging.glob("b[0-9]*.txt"):
+        staged.add("A" + path.stem[1:])
+
+    orphans = sorted(staged - offered)
+    if orphans:
+        print()
+        for seq in orphans:
+            print(f"  !!!!  {seq} is STAGED but NOT OFFERED by SUBMIT.md")
+        print("\nThese were withdrawn - their evidence did not hold - but their paste\n"
+              "files are still here and still look ready. DO NOT PASTE THEM. Remove\n"
+              "them from the staging folder, or restore the term to SUBMIT.md by\n"
+              "supplying the evidence it is missing.")
+        return 3
+
     if drift and not args.write:
         print("\nstaged files are STALE - run with --write before pasting anything")
         return 1
     print("\nstaged files resynced from SUBMIT.md" if drift
-          else "\nall staged comment files match SUBMIT.md")
+          else "\nall staged comment files match SUBMIT.md, and nothing is staged "
+               "that SUBMIT.md does not offer")
     return 0
 
 
