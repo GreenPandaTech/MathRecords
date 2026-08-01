@@ -284,6 +284,41 @@ def main():
                   bool(got) and got[-1] == (jnew, value), '',
                   fail_detail='the uploaded file would not carry the term being claimed')
 
+        # The approval watcher is the one thing that speaks to the operator
+        # unprompted, and it does so at the single moment they are most likely to
+        # act without re-checking: the instant a term is approved. Its target list
+        # is therefore a second place where "what to submit next" is written down,
+        # and it drifted -- A217059 was withdrawn from the staging folder and the
+        # pack while the watcher kept watching it. Nothing read the two together.
+        targets_path = os.path.join(staging, 'watch_targets.json')
+        if not os.path.exists(targets_path):
+            section('approval watcher targets (skipped: no watch_targets.json)')
+        else:
+            section('approval watcher targets agree with SUBMIT.md')
+            try:
+                watch = json.load(open(targets_path, encoding='utf-8'))
+            except (ValueError, OSError) as exc:
+                watch = None
+                check('watch_targets.json parses', False, fail_detail=str(exc))
+            if watch is not None:
+                blocked_seqs = {seq for seq, _j, _v in blocked}
+                watched = {t.get('seq') for t in watch}
+                offending = sorted(watched & blocked_seqs)
+                check('the watcher tracks no term the pack refuses',
+                      not offending, f'{len(watched)} target(s)',
+                      fail_detail=f'{", ".join(offending)} is blocked but still in '
+                                  f'watch_targets.json - on approval the watcher '
+                                  f'would name it as the next thing to submit')
+                for t in watch:
+                    seq = t.get('seq')
+                    claim = CLAIMS.get(seq)
+                    check(f'{seq}: watcher target matches the claimed term',
+                          claim is not None
+                          and (t.get('idx'), t.get('val')) == (claim[2], claim[3]),
+                          f"a({t.get('idx')})={t.get('val')}",
+                          fail_detail='the watcher would announce approval of a term '
+                                      'this repository does not claim')
+
     if not fast:
         section('audits re-executed (slow)')
         rc, out = run([PY, 'encoding_audit.py'], VDW)

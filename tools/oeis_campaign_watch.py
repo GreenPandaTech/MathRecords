@@ -23,6 +23,14 @@ Targets live in watch_targets.json in the staging folder:
 
 Set "live": true the moment a draft is actually proposed; queued entries are
 not polled, so a sequence nobody has submitted yet costs nothing.
+
+The file is re-read every cycle, so withdrawing a target takes effect on the
+next poll. It used to be read once at startup, which meant a withdrawal made
+while the watcher ran was invisible to it: A217059 was pulled from the file on
+2026-08-01 and the running process kept it, so the approval announcement would
+have named a sequence the submission pack refuses -- at the exact moment the
+operator is most likely to act on it. `verify_all.py` now also fails if this
+file offers a term SUBMIT.md does not.
 """
 from __future__ import annotations
 
@@ -54,6 +62,34 @@ def get(url: str, timeout: int = 45) -> str | None:
     except Exception as exc:  # noqa: BLE001 - a failed poll must never kill the watcher
         LOG.append(f"    fetch failed {url.rsplit('/', 1)[-1]}: {exc}")
         return None
+
+
+def read_targets(targets_file: Path, previous: list[dict] | None) -> list[dict]:
+    """Re-read the target list. A bad read keeps the previous list, never kills
+    the watcher -- same discipline as a failed fetch. Returning [] here would
+    silently stop watching and the status file would look serene."""
+    try:
+        loaded = json.loads(targets_file.read_text(encoding="utf-8"))
+        if not isinstance(loaded, list) or not all(isinstance(t, dict) for t in loaded):
+            raise ValueError("expected a list of objects")
+        return loaded
+    except Exception as exc:  # noqa: BLE001
+        if previous is None:
+            raise
+        LOG.append(f"[{stamp()}] could not re-read {targets_file.name}: {exc}"
+                   f" -- keeping the list from the previous cycle")
+        return previous
+
+
+def load_versions(path: Path) -> dict[str, tuple]:
+    """Draft versions seen in an earlier run. Without this a restart re-baselines
+    every draft, so an editor who acts across the gap is never reported -- the
+    one thing this watcher exists to catch."""
+    try:
+        return {k: tuple(v) for k, v in
+                json.loads(path.read_text(encoding="utf-8")).items()}
+    except Exception:  # noqa: BLE001 - absent or unreadable is simply no baseline
+        return {}
 
 
 def write_status(targets: list[dict], status_file: Path) -> None:
@@ -107,14 +143,22 @@ def main() -> int:
 
     targets_file = args.staging / "watch_targets.json"
     status_file = args.staging / "APPROVAL_STATUS.txt"
-    targets = json.loads(targets_file.read_text(encoding="utf-8"))
+    versions_file = args.staging / "watch_versions.json"
+    targets = read_targets(targets_file, None)
     deadline = time.time() + args.max_hours * 3600.0
-    versions: dict[str, tuple] = {}
+    versions = load_versions(versions_file)
     LOG.append(f"[{stamp()}] campaign watch started, every {args.interval}s for "
                f"{args.max_hours:.0f}h. Read-only; submits nothing.")
+    if versions:
+        LOG.append(f"[{stamp()}] resuming from versions seen by an earlier run: "
+                   + ", ".join(f"{s} #{v[0]}" for s, v in sorted(versions.items()))
+                   + " -- an editor acting across a restart is still reported")
     write_status(targets, status_file)
 
     while time.time() < deadline:
+        # Re-read every cycle: a target withdrawn while this runs must stop being
+        # watched and must not appear in the approval announcement.
+        targets = read_targets(targets_file, targets)
         for t in targets:
             if not t.get("live") or t.get("approved"):
                 continue
@@ -143,8 +187,13 @@ def main() -> int:
                                    f"https://oeis.org/draft/{seq} and reply TODAY")
                     versions[seq] = top
 
+        versions_file.write_text(
+            json.dumps({s: list(v) for s, v in versions.items()}, indent=1),
+            encoding="utf-8")
         write_status(targets, status_file)
-        if all(t.get("approved") for t in targets):
+        # `all()` is True on an empty list, so an emptied or truncated target file
+        # would otherwise be reported as a completed campaign.
+        if targets and all(t.get("approved") for t in targets):
             LOG.append(f"[{stamp()}] every target approved - campaign complete")
             write_status(targets, status_file)
             return 0
