@@ -1,0 +1,49 @@
+name: gate
+
+# This repository is PUBLIC and its claims are mathematical, so the thing worth
+# automating is not style but whether every claim is still supported by the
+# evidence committed beside it. That is exactly what verify_all.py answers, and
+# until now it was only ever run by hand.
+#
+# Actions minutes are free on public repositories, so this costs nothing against
+# the account quota.
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    # Measured: the full gate takes 11 s locally, so a job still running at 15
+    # minutes has hung rather than got slower. Bounded because an unbounded job
+    # burns GitHub's default of 360.
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      # Pinned. The audits below re-derive results through this solver, and a
+      # gate whose verdict depends on which day it runs is not a gate -- the
+      # same lesson an unpinned ruff taught the rest of the account.
+      - name: Install the SAT solver the audits run through
+        run: pip install python-sat==1.9.dev7
+
+      # Runs first and costs nothing: an identity leak in a public repository is
+      # the one failure here that cannot be undone by a later commit.
+      - name: No machine-local paths in a public repository
+        run: python scrub_paths.py --check
+
+      # The repository's own gate, in full. The two slow audits are included:
+      # they are what check the CNF against the definition rather than against
+      # a previous run of itself.
+      #
+      # The staging-folder sections skip on a runner by design -- ~/OEIS-upload
+      # is machine-local and never committed.
+      - name: Re-check every claim against the evidence on disk
+        run: python verify_all.py
