@@ -319,6 +319,60 @@ def main():
                           fail_detail='the watcher would announce approval of a term '
                                       'this repository does not claim')
 
+    # The upper bounds are the half of every result with no self-checking
+    # artifact: a colouring proves a lower bound to anyone in milliseconds, but
+    # "no colouring exists" is an absence, and until now it rested on a solver
+    # saying UNSAT with nothing to replay. drat_certify.py emits a DRAT proof and
+    # has drat-trim check it, which shrinks what is trusted to drat-trim plus the
+    # encoding audit below -- and the encoding half is audited exhaustively.
+    #
+    # Symmetry breaking is OFF in those proofs, so the reversal lex-leader
+    # argument is not assumed by the thing meant to check it.
+    section('DRAT certificate table agrees with the claims')
+    sys.path.insert(0, VDW)
+    import drat_certify
+    importlib.reload(drat_certify)
+    for seq, fam in sorted(drat_certify.FAMILIES.items()):
+        claim = CLAIMS.get(seq)
+        check(f'{seq}: drat_certify published terms match CLAIMS',
+              claim is not None and fam['published'] == claim[1]
+              and fam['targets'] == claim[0],
+              f"{len(fam['published'])} published, targets {fam['targets']}",
+              fail_detail='the certifier would certify a different sequence from '
+                          'the one this repository claims')
+
+    # Two binaries this repository does not ship. A clean clone and a CI runner
+    # both lack them, and neither is a failure: the section skips, loudly.
+    ladder = {'A217058': '0-3' if fast else '0-6',
+              'A217005': '0-1', 'A217007': '0-1', 'A217236': '0-1'}
+    started = False
+    for seq, spec in ladder.items():
+        rc, out = run([PY, 'drat_certify.py', '--seq', seq, '--ladder', spec,
+                       '--json'], VDW)
+        if rc == drat_certify.TOOLS_MISSING:
+            section('DRAT refutations (skipped: kissat/drat-trim not installed '
+                    '- see vdw/DRAT.md)')
+            break
+        if not started:
+            section('DRAT refutations replayed under drat-trim')
+            started = True
+        try:
+            recs = json.loads(out)
+        except ValueError:
+            recs = None
+        if not check(f'{seq}: certifier returned results', bool(recs),
+                     fail_detail=out.strip()[-300:]):
+            continue
+        for r in recs:
+            # Anything other than the checker's own VERIFIED line fails. A
+            # satisfiable instance reports SAT and fails here too, which is the
+            # point: it would mean the upper bound itself is false.
+            check(f"{seq}: a({r['j']}) <= {r['n']} refutation is machine-checked",
+                  r['verdict'] == 'VERIFIED',
+                  f"{r['verdict']}, {r.get('proof_mb', 0)} MB proof checked in "
+                  f"{r.get('check_s', 0)} s",
+                  fail_detail=r.get('detail', r['verdict']))
+
     if not fast:
         section('audits re-executed (slow)')
         rc, out = run([PY, 'encoding_audit.py'], VDW)
