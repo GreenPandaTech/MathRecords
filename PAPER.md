@@ -301,11 +301,30 @@ provides no new proof technique.
 The lower bound is certain in the strongest available sense — a finite object,
 verified against the definition by a program sharing no code with the solver.
 
-The upper bound is a machine refutation. It has not been reduced to a formally
-checked proof object (no DRAT certificate was produced or checked; that would
-guard against a solver defect, whereas the audits above target an encoding
-defect, which is by far the likelier failure and the one that low-level proof
-checking cannot detect). It rests on: an encoding proven equal to the definition
+The upper bound is a machine refutation. **For this term it has still not been
+reduced to a formally checked proof object**, and the reason is now cost rather
+than absence of machinery.
+
+DRAT certification is implemented and gated (`vdw/drat_certify.py`,
+`vdw/DRAT.md`). The refutations behind the *published* rungs `a(0)` to `a(6)` of
+this family, and the first rungs of the other three families, are replayed under
+`drat-trim` on every run of `verify_all.py` and come back `s VERIFIED` — with
+symmetry breaking switched off, so what is certified is the raw encoding and the
+reversal lex-leader argument stays outside the trusted base. The checker was
+validated against negative controls first: a proof truncated to half, a proof of
+a different formula, and every instance one below a published term, which must
+report SAT and does.
+
+The headline rung is not among them. Cost grows about 2.4x per rung, which puts
+`n=57, j=12` at order 6–17 hours of solving and a 30–150 GB proof — feasible on
+this disk, but it wants a per-cube proof plus a composition argument rather than
+one run, and **that work has not been done**.
+
+Note what such a certificate does and does not buy: it guards against a solver
+defect, whereas the audits above target an encoding defect, which is by far the
+likelier failure and the one that low-level proof checking cannot detect.
+
+The upper bound therefore still rests on: an encoding proven equal to the definition
 by exhaustion, symmetry breaking proven to lose nothing, the wildcard budget
 tested at exact scale, the whole published sequence reproduced, and three
 independent refutations — one of them through an engine that imposes no symmetry
