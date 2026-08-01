@@ -240,6 +240,50 @@ def main():
                   fail_detail='evidence supports it but the pack is stale — '
                               'run make_submit_pack.py')
 
+    # The b-file is the DATA that is uploaded to OEIS. The gate checked
+    # certificates, prose and SUBMIT.md and never opened one, so the only
+    # artifact whose contents literally become the public record was the one
+    # thing unverified. Same shape as the SUBMIT.md gap: a chain of checks that
+    # stops one link short of the thing that ships.
+    #
+    # Both directions, because one is not a gate: a READY term's file must exist
+    # and match its claim exactly, and a BLOCKED term's file must NOT be sitting
+    # there pasteable. The staging folder lives outside the repo, so a clean
+    # clone skips this section rather than failing it.
+    staging = os.path.join(os.path.expanduser('~'), 'OEIS-upload')
+    if not os.path.isdir(staging):
+        section('staged b-files (skipped: no staging folder on this machine)')
+    else:
+        section('staged b-files match the claims')
+        ready_seqs = {seq for seq, _j, _v in ready}
+        for seq, (targets, published, jnew, value, wf, rf) in CLAIMS.items():
+            bpath = os.path.join(staging, f'b{seq[1:]}.txt')
+            staged_here = os.path.exists(bpath)
+
+            if seq not in ready_seqs:
+                check(f'{seq}: withheld term is NOT staged for upload',
+                      not staged_here, 'not staged',
+                      fail_detail=f'{bpath} exists but {seq} is blocked - it would be '
+                                  f'pasted from a folder that looks ready')
+                continue
+
+            if not check(f'{seq}: b-file is staged', staged_here,
+                         fail_detail=f'missing {bpath}'):
+                continue
+
+            rows = [r.split() for r in
+                    open(bpath, encoding='ascii').read().split('\n') if r.strip()]
+            got = [(int(a), int(b)) for a, b in rows]
+            want = list(enumerate(published + [value], start=jnew - len(published)))
+            check(f'{seq}: b-file rows equal the claimed sequence',
+                  got == want, f'{len(got)} rows, last a({got[-1][0]})={got[-1][1]}'
+                  if got else 'empty',
+                  fail_detail=f'b-file disagrees with CLAIMS: got {got[:3]}...{got[-1:]} '
+                              f'want {want[:3]}...{want[-1:]}')
+            check(f'{seq}: b-file final row is the claimed new term a({jnew})={value}',
+                  bool(got) and got[-1] == (jnew, value), '',
+                  fail_detail='the uploaded file would not carry the term being claimed')
+
     if not fast:
         section('audits re-executed (slow)')
         rc, out = run([PY, 'encoding_audit.py'], VDW)
