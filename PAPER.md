@@ -1,21 +1,24 @@
-# Five new terms for mixed van der Waerden numbers
+# Four established new terms for mixed van der Waerden numbers
 
-**Results.** Five previously uncomputed values, in five different families
-whose published lists have all stood since 2012:
+**Results.** Four previously uncomputed values, established in four different
+families whose published lists have all stood since 2012, and a fifth withheld.
+
+> **Withheld.** A217059 a(9) = 74 is COMPUTED but WITHHELD, not established: its refutation and verified witness are on disk, but the family gate that reproduces the published a(8) = 70 as an independent check on the method was started and killed without a verdict (`logs/validate_gate59.log` holds its two header lines and no result). It is excluded from the submission pack until that gate runs to completion.
+
 
 | sequence | new term | value |
 |---|---|---|
 | [A217058](https://oeis.org/A217058) | `a(12) = w(14; 2^12, 3, 4)` | **57** |
 | [A217005](https://oeis.org/A217005) | `a(19) = w(21; 2^19, 3, 3)` | **52** |
 | [A217007](https://oeis.org/A217007) | `a(7) = w(9; 2^7, 4, 4)` | **68** |
-| [A217059](https://oeis.org/A217059) | `a(9) = w(11; 2^9, 3, 5)` | **74** |
+| [A217059](https://oeis.org/A217059) | `a(9) = w(11; 2^9, 3, 5)` | 74 — **WITHHELD**, see above |
 | [A217236](https://oeis.org/A217236) | `a(4) = w(6; 2^4, 4, 5)` | **84** |
 
 ```
 A217058:  18, 21, 25, 29, 33, 36, 40, 42, 45, 48, 52, 55, 57
 A217005:  9, 14, 17, 20, 21, 24, 25, 28, 31, 33, 35, 37, 39, 42, 44, 46, 48, 50, 51, 52
 A217007:  35, 40, 53, 54, 56, 66, 67, 68
-A217059:  22, 32, 43, 44, 50, 55, 61, 65, 70, 74
+A217059:  22, 32, 43, 44, 50, 55, 61, 65, 70, 74   <- 74 WITHHELD, not established
 A217236:  55, 71, 75, 79, 84
 ```
 

@@ -139,6 +139,28 @@ def main():
     else:
         check('ec certificate present', False)
 
+    # Which terms the evidence actually supports. Computed HERE, above the prose
+    # section, because the prose section used to iterate CLAIMS -- every claimed
+    # term -- and demand that each be written up as established, certificate and
+    # full extended sequence included. That did not merely fail to catch an
+    # overstatement in the public write-up: it REQUIRED one. A217059 was blocked
+    # from SUBMIT.md for having no completed family gate, while this gate went on
+    # insisting PAPER.md and README.md present it as an established result.
+    sys.path.insert(0, ROOT)
+    import importlib
+
+    import make_submit_pack
+    importlib.reload(make_submit_pack)
+
+    ready, blocked = [], []
+    for seq, (targets, published, j, value, wf, rf) in CLAIMS.items():
+        wit, ref = make_submit_pack.load(wf), make_submit_pack.load(rf)
+        xc, _why = make_submit_pack.crosscheck(seq, targets, j, value)
+        gate = make_submit_pack.family_gate(seq, targets, published, j)
+        entry = (seq, j, value)
+        (ready if (wit and ref and xc and xc.get('AGREES') and gate) else blocked).append(entry)
+    blocked_seqs = {seq for seq, _j, _v in blocked}
+
     section('prose matches evidence')
     # A result that is computed but never written up is not "complete", and an
     # earlier version of this harness skipped any sequence absent from the prose
@@ -151,6 +173,8 @@ def main():
             continue
         text = open(p, encoding='utf-8').read()
         for seq, (targets, published, jnew, value, wf, rf) in CLAIMS.items():
+            if seq in blocked_seqs:
+                continue  # handled by the withheld-term checks below
             if not check(f'{doc}: documents {seq}', seq in text):
                 continue
             wit = json.load(open(os.path.join(VDW, wf)))
@@ -165,6 +189,22 @@ def main():
             check(f'{doc}: {seq} shows the full extended sequence ending {value}',
                   full in text, '', 'extended data line missing or stale')
 
+        # A withheld term must NOT be presented as an established result. The
+        # extended data line ending in the new value is the specific thing that
+        # asserts it, so either the prose omits that line or it carries an
+        # explicit marker beside the sequence saying the term is not established.
+        for seq, _j, value in blocked:
+            published = CLAIMS[seq][1]
+            full = ', '.join(str(t) for t in published + [value])
+            marked = any(
+                w in text for w in ('withheld', 'withdrawn', 'not established', 'NOT established')
+            )
+            check(f'{doc}: does not present withheld {seq} as established',
+                  (full not in text) or marked, '',
+                  f'{seq} is blocked (its evidence is incomplete) but this document '
+                  f'states its extended sequence as a result with no withheld marker')
+
+
     # SUBMIT.md is the file whose contents are actually pasted into OEIS, and
     # until now nothing here opened it. The gate could therefore print "EVERY
     # CLAIM IN THIS REPOSITORY IS SUPPORTED BY EVIDENCE ON DISK" while SUBMIT.md
@@ -176,21 +216,7 @@ def main():
     if not os.path.exists(submit_path):
         check('SUBMIT.md exists', False, fail_detail='run make_submit_pack.py')
     else:
-        sys.path.insert(0, ROOT)
-        import importlib
-        import make_submit_pack
-        importlib.reload(make_submit_pack)
-
         submit_text = open(submit_path, encoding='utf-8').read()
-        ready, blocked = [], []
-        for seq, (targets, published, j, value, wf, rf) in CLAIMS.items():
-            wit, ref = make_submit_pack.load(wf), make_submit_pack.load(rf)
-            xc, _why = make_submit_pack.crosscheck(seq, targets, j, value)
-            gate = make_submit_pack.family_gate(seq, targets, published, j)
-            if wit and ref and xc and xc.get('AGREES') and gate:
-                ready.append((seq, j, value))
-            else:
-                blocked.append((seq, j, value))
 
         # Every section heading offering a term to paste must be a term the
         # evidence actually supports.
