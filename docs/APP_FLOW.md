@@ -1,7 +1,5 @@
 # App Flow — the operator console
 
-**Date:** 2026-08-03 · **PRD:** [PRD.md](PRD.md) · **Design Brief:** [DESIGN_BRIEF.md](DESIGN_BRIEF.md)
-
 There is no web interface and no GUI. There is one interactive surface, and it is
 the one that matters: a `cmd.exe` menu, `go.cmd`, that stands between finished
 mathematics and a permanent public record. This file describes that flow and the
@@ -11,7 +9,9 @@ Everything below is read out of `go.cmd`, `START HERE.md`, `verify_all.py` and
 `make_submit_pack.py` as they currently stand, including the parts that are
 currently wrong.
 
-## Entry points
+[PRD.md](PRD.md) · [DESIGN_BRIEF.md](DESIGN_BRIEF.md)
+
+## Ways in
 
 | Arrival | What it is |
 |---|---|
@@ -21,7 +21,7 @@ currently wrong.
 | `<seq> APPROVED - READ ME.txt` in the home directory | written by `tools/oeis_campaign_watch.py` the moment an OEIS submission is approved, naming what to submit next |
 | `python verify_all.py` in a terminal | the gate, directly; the same thing menu option 2 runs |
 
-## The happy path
+## From finished mathematics to a pasted term
 
 The state this project is actually in: four terms ready, one submitted and under
 review, nothing computing. The path begins when the OEIS approves the open one.
@@ -49,7 +49,7 @@ review, nothing computing. The path begins when the OEIS approves the open one.
 8. **Wait.** Editors are volunteers; days to weeks. Nothing else is done until
    that entry is *accepted*, not merely commented on.
 
-## Every state of every screen
+## Every state the console can be in
 
 The template's "unauthorised" column has no meaning here — there is no login.
 Its honest analogue is **refused**: the state where the console has evidence that
@@ -138,7 +138,7 @@ expects to find searches that have finished. `START HERE.md` already tells the
 operator to use option 1 instead, which is a documentation patch over a surface
 that should have been retired.
 
-## Accessibility
+## Readable under pressure
 
 `cmd.exe` sets most of the floor and the rest is discipline.
 

@@ -1,17 +1,17 @@
 # Design Brief — the console and the generated paste
 
-**Date:** 2026-08-03 · **PRD:** [PRD.md](PRD.md) · **App Flow:** [APP_FLOW.md](APP_FLOW.md)
-
 The designed surface here is not a screen. It is three text artefacts an operator
 reads under pressure: the `go.cmd` menu, the line-by-line output of
 `verify_all.py`, and the generated `SUBMIT.md`. They share one job — making the
 right action obvious and the wrong action awkward at the moment a permanent
 public record is about to be written.
 
-Sections of the standard template that have no meaning in `cmd.exe` — type
-family, colour palette, breakpoints, touch targets — are cut rather than padded.
+Type family, colour palette, breakpoints and touch targets have no meaning in
+`cmd.exe`, so this brief does not have them.
 
-## Intent
+[PRD.md](PRD.md) · [APP_FLOW.md](APP_FLOW.md)
+
+## Making the wrong action awkward
 
 **Procedural and undramatic.** The operator should feel they are following a
 checklist someone else wrote, not making a judgement call. Every screen ends by
@@ -24,7 +24,7 @@ anything that reads as "all fine" without having checked is worse than silence.
 `verify_all.py` prints its verdict sentence only after every check has passed;
 `make_submit_pack.py` prints `blocked:` in the same breath as `ready:`.
 
-## Who is looking at it
+## One operator, under time pressure, weeks later
 
 The author, weeks after the mathematics, at whatever hour an OEIS approval email
 lands. They are not doing research at that moment; they are executing a
@@ -35,7 +35,7 @@ opened this project in a month.
 Design for that person: no recall required, no context to reconstruct, and a
 single sentence that decides whether to proceed.
 
-## Precedents
+## Borrowed from
 
 - **`git status`.** Every state it can be in ends with the literal command that
   moves you out of it. The console copies that: option 2 prints the rail *"the
@@ -51,7 +51,7 @@ single sentence that decides whether to proceed.
   out differently from the rest. Option 7 is the only place in the console that
   demands a typed `YES`, which is what keeps that gesture meaningful.
 
-## Anti-patterns for this project
+## Refusals
 
 - **Spinners and progress bars.** A refutation runs for hours with nothing to
   say, and an animation cannot distinguish working from hung. The status screen
@@ -72,7 +72,7 @@ single sentence that decides whether to proceed.
   the evidence JSON; the operator is asked to copy, never to transcribe, and the
   `Never` list says so as its second bullet.
 
-## Constraints of the medium
+## What cmd.exe allows
 
 - **`cmd.exe`, default window, no configuration.** Assume 80 columns and the
   local code page. Rules are rows of `=`; there are no box-drawing characters and
@@ -97,7 +97,7 @@ single sentence that decides whether to proceed.
 | Landed | a banner above the menu, and a file named to sort first in the folder |
 | Destructive | the only prompt that requires typing a word |
 
-## Accessibility floor
+## Accessibility floor for three text artefacts
 
 - Keyboard only; one digit and Enter for every action.
 - Colour is never the sole signal, because there is no colour.
