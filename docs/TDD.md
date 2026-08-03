@@ -3,7 +3,7 @@
 Derived from the code, not from the README. Where the two disagree the code wins
 and this file follows the code. Requirements: [PRD.md](PRD.md).
 
-## Two layers, and the boundary between them
+## The solver decides; the claims layer only reads
 
 The **solver layer** decides one instance `(n, j, targets)` at a time and writes
 an evidence file for each decision: the verdict, the parameters, the timings,
@@ -153,7 +153,7 @@ in a public repository is the single failure a later commit cannot undo.
 parsed out of it at generation time; no source file contains it, so no copied
 snippet carries it.
 
-## Failure modes
+## What breaks, and what it would cost
 
 | What breaks | Who notices | How we detect it | How we undo it |
 |---|---|---|---|
@@ -199,7 +199,7 @@ prevent it are all cheap and all run before the paste. Which is also why a term
 whose family gate never finished is withheld rather than submitted with a
 plausible explanation attached.
 
-## Test plan
+## The gate, and what it skips loudly
 
 The gate is `python verify_all.py`. How many checks it runs depends on what the
 machine has, and every gap **skips loudly rather than failing**: the staging
@@ -234,7 +234,7 @@ Several of these were written *because* the thing they check had already
 happened. A217059 passed 76 consecutive gate runs while `SUBMIT.md` offered it,
 because until then nothing in the gate had opened `SUBMIT.md`.
 
-## Build order
+## From the first encodings to the shipped engine
 
 Each step motivated by a failure in the one before.
 

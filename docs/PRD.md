@@ -73,12 +73,9 @@ it.
 - Durable, resumable runs, so a closed window costs one instance rather than a
   night.
 
-**Won't, this time**
-
-- Automate the OEIS submission itself. The watcher polls read-only, holds no
-  credential and submits nothing; approval and pasting are human acts.
-- Package the engine as a reusable library.
-- Chase further terms once four are established and one is under review.
+Two obvious extensions are deliberately not taken. The engine is not packaged
+as a reusable library, and no further terms are chased once four are
+established and one is under review.
 
 ## What is not claimed
 
@@ -99,6 +96,9 @@ the answer.
 **No competition on elliptic-curve rank.** `ec/` is a side thread producing a
 genuine, independently verifiable `rank E(Q) >= 7`. The record is `>= 29`. That
 gap is stated in `ec/README.md` and is not a target.
+
+**No automated submission.** The watcher polls read-only, holds no credential
+and submits nothing. Approval and pasting are human acts.
 
 **No general-purpose van der Waerden tool.** The engine is shaped by the five
 families it was pointed at.
@@ -176,9 +176,9 @@ corrected by a retraction under the author's own name, in a venue maintained by
 volunteers. That is the whole reason the design front-loads verification: the
 only cheap moment to be wrong is before the paste.
 
-## Rejected
+## A record of what did not work
 
-| Considered | Rejected because |
+| Approach | The reason it was dropped |
 |---|---|
 | Climbing `n` upward one step at a time from the previous term | 1000–3500 s per step and no upper bound ever produced. Replaced by bracketing: refute a generous `n` to cap the answer, lift the floor with witnesses, close the single remaining gap. Valid because satisfiability is monotone in `n`. |
 | `Kissat404` through pysat | Hard-crashes the interpreter on this platform — a native abort with no Python exception. Excluded rather than worked around. Kissat is still used, as a *standalone binary*, for DRAT proofs. |
