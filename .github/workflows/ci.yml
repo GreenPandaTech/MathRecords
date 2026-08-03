@@ -30,7 +30,7 @@ jobs:
 
       # Pinned. The audits below re-derive results through this solver, and a
       # gate whose verdict depends on which day it runs is not a gate -- the
-      # same lesson an unpinned ruff taught the rest of the account.
+      # same lesson an unpinned ruff taught this project once already.
       - name: Install the SAT solver the audits run through
         run: pip install python-sat==1.9.dev7
 
