@@ -286,7 +286,19 @@ def main():
     _, nvars, nclauses, _, sha = base_formula(args.n, args.j, args.targets)
 
     done = load_results(results_path)
-    todo = [c for c in cubes if done.get(c, {}).get('verdict') != 'VERIFIED']
+    # A recorded VERIFIED is reusable only if it was proved against THIS
+    # formula. Skipping on the verdict alone lets a run resumed under different
+    # n/j/targets inherit refutations of a different problem, and the composed
+    # certificate would then attest to nothing.
+    todo = [c for c in cubes
+            if done.get(c, {}).get('verdict') != 'VERIFIED'
+            or done.get(c, {}).get('formula_sha256') != sha]
+    stale = sum(1 for c in cubes
+                if done.get(c, {}).get('verdict') == 'VERIFIED'
+                and done.get(c, {}).get('formula_sha256') != sha)
+    if stale:
+        print(f'{stale} recorded cube(s) carry a different formula_sha256 and '
+              f'will be re-run')
     prev_ok = len(cubes) - len(todo)
     print(f'{len(cubes)} cubes ({prev_ok} already VERIFIED in {results_path}); '
           f'{len(todo)} to run on {args.workers} workers')

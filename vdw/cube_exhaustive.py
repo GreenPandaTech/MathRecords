@@ -240,13 +240,19 @@ def check_tail(body, nvars, nclauses, cube_set, lemmas, v, drat_trim,
 
 # ------------------------------------------------------------------ driver ----
 
-def load_cubes(path, k):
+def load_cubes(path, k, expect_sha=None):
     """A JSON list of cubes, or a results.jsonl from cube_certify. Returns
-    (cubes, nonverified_count_or_None)."""
+    (cubes, nonverified_count_or_None, foreign_count_or_None).
+
+    A record is only evidence for THIS formula if it was proved against it, so
+    the caller passes the formula hash and a record carrying a different
+    `formula_sha256` is counted foreign and treated as not discharged. Without
+    that check the composition would happily compose refutations of a
+    different problem."""
     with open(path, encoding='ascii') as fh:
         text = fh.read()
     if path.endswith('.jsonl'):
-        cubes, nonverified = {}, 0
+        cubes = {}
         for line in text.splitlines():
             line = line.strip()
             if not line:
@@ -256,11 +262,19 @@ def load_cubes(path, k):
             except json.JSONDecodeError:
                 continue
             if 'cube' in rec:
-                cubes[tuple(rec['cube'])] = rec.get('verdict')
-        nonverified = sum(1 for v_ in cubes.values() if v_ != 'VERIFIED')
-        return list(cubes), nonverified
+                cubes[tuple(rec['cube'])] = rec
+        foreign = None
+        if expect_sha is not None:
+            foreign = sum(1 for r in cubes.values()
+                          if r.get('formula_sha256') != expect_sha)
+        nonverified = sum(
+            1 for r in cubes.values()
+            if r.get('verdict') != 'VERIFIED'
+            or (expect_sha is not None
+                and r.get('formula_sha256') != expect_sha))
+        return list(cubes), nonverified, foreign
     data = json.loads(text)
-    return [tuple(c) for c in data], None
+    return [tuple(c) for c in data], None, None
 
 
 def main():
@@ -286,10 +300,23 @@ def main():
     ap.add_argument('--drat-trim', dest='drat_trim')
     args = ap.parse_args()
 
+    # One build; the body string is byte-for-byte what cube_certify writes as
+    # the F part of every per-cube file (both record its SHA256, so the claim
+    # "same formula" is checkable, not asserted).
+    cnf, pool, v = build(args.n, args.j, args.targets,
+                         symbreak=False, revsym=False)
+    body, nvars, nclauses = dimacs_body(cnf), pool.top, len(cnf)
+    sha = hashlib.sha256(body.encode('ascii')).hexdigest()
+
     r = len(args.targets)
+    foreign = None
     if args.cubes:
-        cubes, nonverified = load_cubes(args.cubes, args.k)
+        cubes, nonverified, foreign = load_cubes(args.cubes, args.k, sha)
         source = args.cubes
+        if foreign:
+            print(f'warning: {foreign} record(s) in {args.cubes} were proved '
+                  f'against a DIFFERENT formula and do not count as '
+                  f'discharged', file=sys.stderr)
     else:
         cubes, nonverified = make_cubes(args.n, args.j, args.targets, args.k), None
         source = 'make_cubes (claimed set; the walk below does not trust it)'
@@ -317,14 +344,6 @@ def main():
             return TOOLS_MISSING
         drat_trim = tools['drat_trim']
 
-    # One build; the body string is byte-for-byte what cube_certify writes as
-    # the F part of every per-cube file (both record its SHA256, so the claim
-    # "same formula" is checkable, not asserted).
-    cnf, pool, v = build(args.n, args.j, args.targets,
-                         symbreak=False, revsym=False)
-    body, nvars, nclauses = dimacs_body(cnf), pool.top, len(cnf)
-    sha = hashlib.sha256(body.encode('ascii')).hexdigest()
-
     t0 = time.time()
     report, lemmas = compose(args.n, args.j, args.targets, args.k,
                              cube_set, cnf, v)
@@ -339,6 +358,7 @@ def main():
             'cube_source': source, 'cube_count': len(cube_set),
             'cube_set_sha256': cube_sha,
             'cube_results_nonverified': nonverified,
+            'cube_results_foreign_formula': foreign,
             'walk_s': walk_s, **report,
             'meaning': 'exhaustiveness/composition ONLY: every branch of the '
                        'full assignment tree is a cube or refuted by the '
@@ -377,7 +397,16 @@ def main():
                   f'({tail["tail_lemmas"]} lemmas over '
                   f'{tail["fprime_clauses"]} F\' clauses, {tail["check_s"]}s)')
             failed = tail['verdict'] != 'VERIFIED'
-            cert['verdict'] = 'FAIL' if failed else 'PASS'
+            # PASS means the theorem is composed, which needs BOTH halves: the
+            # tree is exhaustive AND every cube's UNSAT obligation is
+            # discharged against this same formula. Reporting PASS while cubes
+            # are outstanding would let a caller read "composed" as "proved".
+            if failed:
+                cert['verdict'] = 'FAIL'
+            elif nonverified:
+                cert['verdict'] = 'PASS_COMPOSITION_ONLY'
+            else:
+                cert['verdict'] = 'PASS'
 
     out_path = args.out or os.path.join(
         os.path.dirname(os.path.abspath(__file__)),
@@ -387,10 +416,11 @@ def main():
         json.dump(cert, fh, indent=1)
     print(f'certificate: {out_path} (verdict {cert["verdict"]})')
     if nonverified:
-        print(f'warning: {nonverified} cube(s) in {source} are not VERIFIED -- '
-              f'exhaustiveness holds for the SET, but the per-cube '
-              f'obligations are not all discharged yet')
-    return 1 if failed else 0
+        print(f'warning: {nonverified} cube(s) in {source} are not VERIFIED '
+              f'against this formula -- exhaustiveness holds for the SET, but '
+              f'the per-cube obligations are not all discharged, so this is '
+              f'NOT yet a proof')
+    return 1 if (failed or nonverified) else 0
 
 
 if __name__ == '__main__':
