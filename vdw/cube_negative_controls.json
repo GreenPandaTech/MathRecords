@@ -1,0 +1,58 @@
+{
+ "what": "Negative controls for the cube certification pipeline (cube_certify.py + cube_exhaustive.py), run 2026-08-04 against kissat 4.0.1 and drat-trim. A checker that says VERIFIED on everything proves nothing: each control below must FAIL, and each failure was OBSERVED, not assumed. Verbatim key fields from the actual runs.",
+ "controls": [
+  {
+   "id": "a_truncated_proof",
+   "setup": "cube_certify.py --n 45 --j 8 --targets 3 4 --k 6 --limit 1 --negctl-truncate 0: the hardest cube's DRAT proof truncated to half before drat-trim sees it",
+   "expected": "NOT_VERIFIED, exit 1",
+   "observed": {
+    "cube": [1, 1, 2, 1, 1, 2],
+    "verdict": "NOT_VERIFIED",
+    "proof_bytes": 5570349,
+    "negctl": "proof truncated to 2785174 of 5570349 bytes",
+    "drat_trim_output": "c ERROR: no conflict / s NOT VERIFIED",
+    "exit_code": 1
+   }
+  },
+  {
+   "id": "b_cube_removed_from_set",
+   "setup": "cube_exhaustive.py --n 57 --j 12 --targets 3 4 --k 8 --drop-cube 1,1,2,1,1,2,2,2: one genuine cube deleted from the 4487-cube set before the exhaustiveness walk",
+   "expected": "FAIL naming the missing prefix, exit 1",
+   "observed": {
+    "verdict": "FAIL",
+    "counterexample_prefix": [1, 1, 2, 1, 1, 2, 2, 2],
+    "why": "full-depth prefix neither in the cube set nor refuted by the formula",
+    "cube_count_after_removal": 4486,
+    "exit_code": 1
+   }
+  },
+  {
+   "id": "c_satisfiable_instance_full_run",
+   "setup": "cube_certify.py --n 32 --j 4 --targets 3 4 --k 4 (one below the published a(4)=33, so a colouring exists)",
+   "expected": "SAT reported loudly, whole run aborted, exit 2, never VERIFIED",
+   "observed": {
+    "first_sat_cube": [2, 1, 1, 2],
+    "verdict": "SAT",
+    "run_state": "SAT_ABORT",
+    "exit_code": 2
+   }
+  },
+  {
+   "id": "c2_satisfiable_instance_adjacent_to_headline",
+   "setup": "cube_certify.py --n 56 --j 12 --targets 3 4 --k 8 --only 2,0,2,1,2,2,1,2 (the k=8 prefix of the known n=56 witness colouring in cert_n56.txt; n=56 is the SAT side of the headline pair)",
+   "expected": "SAT reported loudly, exit 2",
+   "observed": {
+    "cube": [2, 0, 2, 1, 2, 2, 1, 2],
+    "verdict": "SAT",
+    "solve_s": 0.4,
+    "run_state": "SAT_ABORT",
+    "exit_code": 2
+   }
+  }
+ ],
+ "positive_composition_check_at_headline_scale": {
+  "setup": "cube_exhaustive.py --n 57 --j 12 --targets 3 4 --k 8 (composition/exhaustiveness ONLY; per-cube obligations are a separate 4487-proof run)",
+  "observed": "4487 cubes matched, 662 mono-AP drops, 0 UP drops, 0 budget drops, 2574 internal nodes, 3236 tail lemmas; drat-trim on F' + tail: s VERIFIED in 0.08 s",
+  "matches_design_prediction": "662 dropped nodes / 3236 lemmas / ~0.1 s, exactly as the design phase measured"
+ }
+}
