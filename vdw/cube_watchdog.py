@@ -39,7 +39,7 @@ VERDICT = os.path.join(REPO, 'HEADLINE_CERTIFICATION_RESULT.txt')
 
 N, J, K = 57, 12, 8
 TARGETS = ['3', '4']
-WORKERS = '3'
+WORKERS = '4'
 # Read from the environment like every other tool script here. This repository
 # is public and one machine's directory layout is no use to a reader; the
 # launcher (gitignored, machine-local) supplies the real paths.

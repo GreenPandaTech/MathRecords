@@ -301,9 +301,9 @@ provides no new proof technique.
 The lower bound is certain in the strongest available sense — a finite object,
 verified against the definition by a program sharing no code with the solver.
 
-The upper bound is a machine refutation. **For this term it has still not been
-reduced to a formally checked proof object**, and the reason is now cost rather
-than absence of machinery.
+The upper bound is a machine refutation, and **for this term it has now been
+reduced to a formally checked proof object** (2026-08-04). Earlier versions of
+this section said it had not; that is what changed.
 
 DRAT certification is implemented and gated (`vdw/drat_certify.py`,
 `vdw/DRAT.md`). The refutations behind the *published* rungs `a(0)` to `a(6)` of
@@ -315,20 +315,48 @@ validated against negative controls first: a proof truncated to half, a proof of
 a different formula, and every instance one below a published term, which must
 report SAT and does.
 
-The headline rung is not among them. Cost grows about 2.4x per rung, which puts
-`n=57, j=12` at order 6–17 hours of solving and a 30–150 GB proof — feasible on
-this disk, but it wants a per-cube proof plus a composition argument rather than
-one run, and **that work has not been done**.
+**The headline rung is now among them, by the route this section used to
+describe as future work.** Cost grows about 2.4x per rung, which puts a
+single-shot `n=57, j=12` proof at order 6–17 hours and 30–150 GB. Instead the
+search space was split at depth `k=8` into **4,487 cubes** (`vdw/cube_certify.py`):
+each cube's refutation was produced with symmetry breaking off and replayed to
+`s VERIFIED` under `drat-trim`, and all 4,487 records carry the *same* formula
+SHA-256, so they refute one formula rather than several. The largest individual
+proof was under 200 MB, against 30–150 GB for the monolithic route.
+
+Exhaustiveness is proved rather than assumed (`vdw/cube_exhaustive.py`). The
+checker does not trust the cube generator: it walks the full ternary prefix
+tree, and for every prefix *not* in the cube set it exhibits the clause of the
+formula that refutes it — for targets 3 and 4 all 662 dropped prefixes are
+refuted by a monochromatic-AP clause already present, and no prefix is dropped
+by the colour-symmetry rule, which for distinct targets emits nothing at all.
+The resulting 3,236 tail lemmas are themselves replayed by `drat-trim` and come
+back `s VERIFIED`. So `F` and `F ∪ {¬C : C ∈ cubes}` have identical models, every
+cube is refuted, and the empty clause follows.
+
+Fail-closed by construction: a prefix wrongly dropped yields a tail lemma that is
+not RUP and `drat-trim` rejects it; a missing cube clause leaves an internal
+lemma underivable. Both were observed failing before any positive result was
+believed, alongside a truncated proof and a record retagged with a foreign
+formula hash.
 
 Note what such a certificate does and does not buy: it guards against a solver
 defect, whereas the audits above target an encoding defect, which is by far the
 likelier failure and the one that low-level proof checking cannot detect.
 
-The upper bound therefore still rests on: an encoding proven equal to the definition
+The upper bound therefore rests on: an encoding proven equal to the definition
 by exhaustion, symmetry breaking proven to lose nothing, the wildcard budget
-tested at exact scale, the whole published sequence reproduced, and three
+tested at exact scale, the whole published sequence reproduced, three
 independent refutations — one of them through an engine that imposes no symmetry
-breaking at all, another with the reversal constraint switched off.
+breaking at all, another with the reversal constraint switched off — and now a
+replayed proof object for the headline rung itself.
+
+Reproduce it with (both binaries per `vdw/DRAT.md`; about four hours on four
+cores, and it is resumable, so an interrupted run continues rather than restarts):
+
+    python vdw/cube_certify.py    --n 57 --j 12 --targets 3 4 --k 8 --workers 4
+    python vdw/cube_exhaustive.py --n 57 --j 12 --targets 3 4 --k 8 \
+        --cubes vdw/cube_run_n57_j12_k8/results.jsonl
 
 ## 8. The second term: A217005(19) = 52
 
