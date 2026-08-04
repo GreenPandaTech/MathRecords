@@ -13,3 +13,23 @@ vdw/cube_run_n57_j12_k8/
 vdw/cube_run_n57_j12_k8.log
 HEADLINE_CERTIFICATION_RESULT.txt
 vdw/cube_run_n57_j12_k8.err
+
+# Session scaffolding -- not part of the mathematical artefact, never public.
+# Removed 2026-08-04 per GitHub Presence Plan.md section (a).2; ignored here
+# so overnight/automation scripts can't silently re-add them.
+logs/
+_rescued/
+START HERE.md
+SESSION_HANDOFF.md
+CI_WATCHER_STATUS.md
+OVERNIGHT_STATUS.md
+STRENGTHEN_STATUS.md
+RESULT - READ ME.txt
+go.cmd
+check.cmd
+announce.py
+ci_watcher.py
+overnight.py
+finisher.py
+scrub_paths.py
+cleanup_stray_solvers.ps1
