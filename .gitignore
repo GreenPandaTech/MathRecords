@@ -31,5 +31,4 @@ announce.py
 ci_watcher.py
 overnight.py
 finisher.py
-scrub_paths.py
 cleanup_stray_solvers.ps1
