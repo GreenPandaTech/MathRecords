@@ -1,5 +1,7 @@
 # Four established new terms for mixed van der Waerden numbers
 
+Leo Y. Zhang, August 2026.
+
 **Results.** Four previously uncomputed values, established in four different
 families whose published lists have all stood since 2012, and a fifth withheld.
 
